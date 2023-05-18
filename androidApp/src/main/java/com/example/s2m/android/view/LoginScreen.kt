@@ -55,191 +55,208 @@ import com.example.s2m.viewmodel.LoginViewModel
     val MAX_USERNAME_LENGTH = 9
     val MAX_PASSWORD_LENGTH = 8
 
-
+    Box( modifier = Modifier.fillMaxSize()) {
+        Image(
+            painter = painterResource(R.drawable.pexels_pixabay_268533),
+            contentDescription = null,
+            contentScale = ContentScale.Crop
+        )
     Scaffold(
-    backgroundColor = Color(0xFF2A0000),
-    bottomBar = { BottomNavLogin(navController = navController, currentScreen = "welcome") }
-) {
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            ,
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
+       // backgroundColor = Color(0xFF2A0000),
+        bottomBar = { BottomNavLogin(navController = navController, currentScreen = "welcome") }
     ) {
-        Rectangle()
-        Spacer(modifier = Modifier.height(30.dp))
-        Text(text = "Login", fontSize = 24.sp, fontWeight = FontWeight.Bold,color=Color.White)
-        Spacer(modifier = Modifier.height(16.dp))
-        OutlinedTextField(
-            readOnly = true,
-            keyboardActions = KeyboardActions { keyboardController?.hide() },
+        Column(
             modifier = Modifier
-                .border(
-                    border = BorderStroke(1.dp, Color(0xff00E0F7)),
-                    shape = RoundedCornerShape(10.dp)
-                )
-                .onFocusChanged {
-                    if (it.isFocused) {
-                        activeTextField.value = TextFieldType.USERNAME
-                    }
-                },
-            colors = TextFieldDefaults.outlinedTextFieldColors(
-                focusedBorderColor = Color.Transparent, // Customize the focused border color here
-                unfocusedBorderColor = Color.Transparent, // Customize the unfocused border color here
-                disabledBorderColor = Color.Transparent, // Customize the disabled border color here
-                textColor = Color.White
-            ),
-            value = login,
-            onValueChange = {
-                if (it.length <= 9) loginViewModel.onLoginTextChanged(it)
-            },
-
-            label = { Text(text = "Login",color=Color.White) }
-        )
-        Spacer(modifier = Modifier.height(8.dp))
-        OutlinedTextField(
-            readOnly = true,
-            modifier = Modifier
-                .border(
-                    border = BorderStroke(1.dp, Color(0xff00E0F7)),
-                    shape = RoundedCornerShape(10.dp)
-                )
-                .onFocusChanged {
-                    if (it.isFocused) {
-                        activeTextField.value = TextFieldType.PASSWORD
-                    }
-                },
-            colors = TextFieldDefaults.outlinedTextFieldColors(
-                focusedBorderColor = Color.Transparent, // Customize the focused border color here
-                unfocusedBorderColor = Color.Transparent, // Customize the unfocused border color here
-                disabledBorderColor = Color.Transparent, // Customize the disabled border color here
-                textColor = Color.White
-            ),
-
-            value = password,
-            onValueChange = { if (it.length <= 8) loginViewModel.onPasswordTextChanged(it) },
-            label = { Text("Password",color=Color.White) },
-            visualTransformation = PasswordVisualTransformation(),
-            keyboardOptions = KeyboardOptions.Default.copy(imeAction = ImeAction.None)
-
-
-        )
-        Spacer(modifier = Modifier.height(16.dp))
-
-        activeTextField.value?.let { it1 ->
-            CustomKeyboard1(
-                activeTextField = it1,
-                onKeyPressed = { key, activeTextField ->
-                    if (activeTextField == TextFieldType.USERNAME) {
-                        val newLogin = (login + key).take(MAX_USERNAME_LENGTH)
-                        loginViewModel.onLoginTextChanged(newLogin)
-
-                    } else if (activeTextField == TextFieldType.PASSWORD) {
-                        val newPass = (password + key).take(MAX_PASSWORD_LENGTH)
-                        loginViewModel.onPasswordTextChanged(newPass)
-
-                    }
-                },
-                modifier = Modifier.align(Alignment.CenterHorizontally),
-                onBackspacePressed = {
-                    activeTextField.value?.let { textFieldType ->
-                        when (textFieldType) {
-                            TextFieldType.USERNAME -> {
-                                if (login.isNotEmpty()) {
-                                    loginViewModel.onLoginTextChanged(login.dropLast(1))
-                                }
-                            }
-                            TextFieldType.PASSWORD -> {
-                                if (password.isNotEmpty()) {
-                                    loginViewModel.onPasswordTextChanged(password.dropLast(1))
-                                }
-                            }
-                        }
-                    }
-                },
-                onDeletePressed = {activeTextField.value?.let { textFieldType ->
-                    when (textFieldType) {
-                        TextFieldType.USERNAME -> {
-                            if (login.isNotEmpty()) {
-                                loginViewModel.onLoginTextChanged("")
-                            }
-                        }
-                        TextFieldType.PASSWORD -> {
-                            if (password.isNotEmpty()) {
-                                loginViewModel.onPasswordTextChanged("")
-                            }
-                        }
-                    }
-                }
-
-                }
-            )
-
-        }
-
-
-        val context = LocalContext.current
-        Button(
-            shape = RoundedCornerShape(50),
-            onClick = {
-                if (loginViewModel.login2(login, getHash(password)
-                    ) == LoginViewModel.LoginState.Success
-                ) {
-                    navController.navigate("welcome")
-                } else if (loginViewModel.login2(
-                        login,
-                        getHash(password)
-                    ) == LoginViewModel.LoginState.Error(errorType = LoginErrorType.Api)
-                ) {
-                    Toast.makeText(context, "API error", Toast.LENGTH_SHORT).show()
-                } else if (loginViewModel.login2(
-                        login,
-                        getHash(password)
-                    ) == LoginViewModel.LoginState.Error(errorType = LoginErrorType.Http)
-                ) {
-                    Toast.makeText(context, "Incorrect email or password", Toast.LENGTH_SHORT)
-                        .show()
-                } else if (loginViewModel.login2(
-                        login,
-                        getHash(password)
-                    ) == LoginViewModel.LoginState.Error(errorType = LoginErrorType.Connection)
-                ) {
-                    Toast.makeText(context, "Check your internet connection", Toast.LENGTH_SHORT)
-                        .show()
-                } else {
-                    Toast.makeText(context, "unknown error", Toast.LENGTH_SHORT).show()
-                }
-
-            },
-            colors=ButtonDefaults.buttonColors(backgroundColor = Color(0xff00E0F7)),
-
-            modifier = Modifier
-                .width(300.dp)
-                .padding(top = 50.dp)
-
-        )
-        {
-            Text(
-                text="Login",
-                color = Color.Black,)
-        }
-        Button(
-            colors=ButtonDefaults.buttonColors(backgroundColor = Color(0xff00E0F7)),
-            shape = RoundedCornerShape(50),
-            onClick = {
-                Toast.makeText(context, "Still in development", Toast.LENGTH_SHORT).show()
-            },
-            modifier = Modifier
-                .width(300.dp)
-
-
+                .fillMaxSize(),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
         ) {
-
+            Rectangle()
+            Spacer(modifier = Modifier.height(30.dp))
             Text(
-                text = "Sign Up",
-                color = Color.Black,
+                text = "Login",
+                fontSize = 24.sp,
+                fontWeight = FontWeight.Bold,
+                color = Color.White
             )
+            Spacer(modifier = Modifier.height(16.dp))
+            OutlinedTextField(
+                readOnly = true,
+                keyboardActions = KeyboardActions { keyboardController?.hide() },
+                modifier = Modifier
+                    .border(
+                        border = BorderStroke(1.dp, Color(0xff00E0F7)),
+                        shape = RoundedCornerShape(10.dp)
+                    )
+                    .onFocusChanged {
+                        if (it.isFocused) {
+                            activeTextField.value = TextFieldType.USERNAME
+                        }
+                    },
+                colors = TextFieldDefaults.outlinedTextFieldColors(
+                    focusedBorderColor = Color.Transparent, // Customize the focused border color here
+                    unfocusedBorderColor = Color.Transparent, // Customize the unfocused border color here
+                    disabledBorderColor = Color.Transparent, // Customize the disabled border color here
+                    textColor = Color.White
+                ),
+                value = login,
+                onValueChange = {
+                    if (it.length <= 9) loginViewModel.onLoginTextChanged(it)
+                },
+
+                label = { Text(text = "Login", color = Color.White) }
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+            OutlinedTextField(
+                readOnly = true,
+                modifier = Modifier
+                    .border(
+                        border = BorderStroke(1.dp, Color(0xff00E0F7)),
+                        shape = RoundedCornerShape(10.dp)
+                    )
+                    .onFocusChanged {
+                        if (it.isFocused) {
+                            activeTextField.value = TextFieldType.PASSWORD
+                        }
+                    },
+                colors = TextFieldDefaults.outlinedTextFieldColors(
+                    focusedBorderColor = Color.Transparent, // Customize the focused border color here
+                    unfocusedBorderColor = Color.Transparent, // Customize the unfocused border color here
+                    disabledBorderColor = Color.Transparent, // Customize the disabled border color here
+                    textColor = Color.White
+                ),
+
+                value = password,
+                onValueChange = { if (it.length <= 8) loginViewModel.onPasswordTextChanged(it) },
+                label = { Text("Password", color = Color.White) },
+                visualTransformation = PasswordVisualTransformation(),
+                keyboardOptions = KeyboardOptions.Default.copy(imeAction = ImeAction.None)
+
+
+            )
+            Spacer(modifier = Modifier.height(16.dp))
+
+            activeTextField.value?.let { it1 ->
+                CustomKeyboard1(
+                    activeTextField = it1,
+                    onKeyPressed = { key, activeTextField ->
+                        if (activeTextField == TextFieldType.USERNAME) {
+                            val newLogin = (login + key).take(MAX_USERNAME_LENGTH)
+                            loginViewModel.onLoginTextChanged(newLogin)
+
+                        } else if (activeTextField == TextFieldType.PASSWORD) {
+                            val newPass = (password + key).take(MAX_PASSWORD_LENGTH)
+                            loginViewModel.onPasswordTextChanged(newPass)
+
+                        }
+                    },
+                    modifier = Modifier.align(Alignment.CenterHorizontally),
+                    onBackspacePressed = {
+                        activeTextField.value?.let { textFieldType ->
+                            when (textFieldType) {
+                                TextFieldType.USERNAME -> {
+                                    if (login.isNotEmpty()) {
+                                        loginViewModel.onLoginTextChanged(login.dropLast(1))
+                                    }
+                                }
+                                TextFieldType.PASSWORD -> {
+                                    if (password.isNotEmpty()) {
+                                        loginViewModel.onPasswordTextChanged(password.dropLast(1))
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    onDeletePressed = {
+                        activeTextField.value?.let { textFieldType ->
+                            when (textFieldType) {
+                                TextFieldType.USERNAME -> {
+                                    if (login.isNotEmpty()) {
+                                        loginViewModel.onLoginTextChanged("")
+                                    }
+                                }
+                                TextFieldType.PASSWORD -> {
+                                    if (password.isNotEmpty()) {
+                                        loginViewModel.onPasswordTextChanged("")
+                                    }
+                                }
+                            }
+                        }
+
+                    }
+                )
+
+            }
+
+
+            val context = LocalContext.current
+            Button(
+                shape = RoundedCornerShape(50),
+                onClick = {
+                    if (loginViewModel.login2(
+                            login, getHash(password)
+                        ) == LoginViewModel.LoginState.Success
+                    ) {
+                        navController.navigate("welcome")
+                    } else if (loginViewModel.login2(
+                            login,
+                            getHash(password)
+                        ) == LoginViewModel.LoginState.Error(errorType = LoginErrorType.Api)
+                    ) {
+                        Toast.makeText(context, "API error", Toast.LENGTH_SHORT).show()
+                    } else if (loginViewModel.login2(
+                            login,
+                            getHash(password)
+                        ) == LoginViewModel.LoginState.Error(errorType = LoginErrorType.Http)
+                    ) {
+                        Toast.makeText(context, "Incorrect email or password", Toast.LENGTH_SHORT)
+                            .show()
+                    } else if (loginViewModel.login2(
+                            login,
+                            getHash(password)
+                        ) == LoginViewModel.LoginState.Error(errorType = LoginErrorType.Connection)
+                    ) {
+                        Toast.makeText(
+                            context,
+                            "Check your internet connection",
+                            Toast.LENGTH_SHORT
+                        )
+                            .show()
+                    } else {
+                        Toast.makeText(context, "unknown error", Toast.LENGTH_SHORT).show()
+                    }
+
+                },
+                colors = ButtonDefaults.buttonColors(backgroundColor = Color(0xff00E0F7)),
+
+                modifier = Modifier
+                    .width(300.dp)
+                    .padding(top = 50.dp)
+
+            )
+            {
+                Text(
+                    text = "Login",
+                    color = Color.Black,
+                )
+            }
+            Button(
+                colors = ButtonDefaults.buttonColors(backgroundColor = Color(0xff00E0F7)),
+                shape = RoundedCornerShape(50),
+                onClick = {
+                    Toast.makeText(context, "Still in development", Toast.LENGTH_SHORT).show()
+                },
+                modifier = Modifier
+                    .width(300.dp)
+
+
+            ) {
+
+                Text(
+                    text = "Sign Up",
+                    color = Color.Black,
+                )
+            }
         }
     }
 }

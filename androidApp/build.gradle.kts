@@ -51,4 +51,6 @@ dependencies {
 
     implementation ("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.5.2")
     implementation ("androidx.navigation:navigation-compose:2.5.3")
+    implementation ("com.google.accompanist:accompanist-pager:0.22.0-rc")
+    implementation ("io.coil-kt:coil-compose:1.4.0")
 }

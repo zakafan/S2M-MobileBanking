@@ -37,6 +37,8 @@ kotlin {
                 api("dev.icerock.moko:mvvm-flow:$mokoMvvmVersion")
                 implementation("com.russhwolf:multiplatform-settings:0.8.1")
                 implementation("androidx.compose.runtime:runtime:1.4.3")
+                implementation ("com.google.accompanist:accompanist-pager:0.22.0-rc")
+                implementation ("io.coil-kt:coil-compose:1.4.0")
 
             }
         }
@@ -51,6 +53,8 @@ kotlin {
                 api("dev.icerock.moko:mvvm-flow-compose:$mokoMvvmVersion")
                 implementation("io.ktor:ktor-client-android:$ktorVersion")
                 implementation ("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.6.4")
+                implementation ("com.google.accompanist:accompanist-pager:0.22.0-rc")
+                implementation ("io.coil-kt:coil-compose:1.4.0")
 
 
             }

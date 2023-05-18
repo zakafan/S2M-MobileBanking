@@ -1,11 +1,11 @@
 package com.example.s2m.repository
 
-import com.example.bankingapp.data.model.*
 import com.example.s2m.util.ApiClient
 import com.example.s2m.util.InitHeader
 import com.example.s2m.model.LoggedRequest
 import com.example.s2m.model.TransactionRequest
 import com.example.s2m.model.TransferRequest
+import com.example.s2m.model.TransferResponse
 import com.example.s2m.viewmodel.LoginViewModel
 import io.ktor.client.call.*
 import io.ktor.client.request.*

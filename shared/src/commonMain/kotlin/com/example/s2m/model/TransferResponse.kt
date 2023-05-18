@@ -1,4 +1,4 @@
-package com.example.bankingapp.data.model
+package com.example.s2m.model
 
 import kotlinx.serialization.SerialName
 
