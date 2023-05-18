@@ -1,4 +1,4 @@
-package com.example.bankingapp.android.util
+package com.example.s2m.android.util
 
 import androidx.compose.material.ScaffoldState
 import androidx.compose.material.rememberScaffoldState

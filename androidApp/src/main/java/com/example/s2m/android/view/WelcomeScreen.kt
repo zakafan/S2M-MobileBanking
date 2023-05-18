@@ -21,7 +21,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
-import com.example.bankingapp.android.util.BottomNav
+import com.example.s2m.android.util.BottomNav
 import com.example.s2m.android.util.DrawerContent
 import com.example.s2m.android.R
 import com.example.s2m.model.User
@@ -36,9 +36,9 @@ fun WelcomeScreen(
 
 ) {
 
-    val login: String by loginViewModel.login.collectAsState()
+    //val login: String by loginViewModel.login.collectAsState()
     val user: User by loginViewModel.user.collectAsState()
-    val scaffoldState = rememberScaffoldState()
+    //val scaffoldState = rememberScaffoldState()
 
 
 
@@ -63,17 +63,24 @@ fun WelcomeScreen(
     
     Scaffold(
 
-        backgroundColor = Color.LightGray,
+        backgroundColor = Color(0xFFC4C4C4),
         topBar = {
-            TopAppBar(
-                title = { Text(text = "S2M") },
-                
-                navigationIcon = {
-                    IconButton(onClick = { } ) {
-                        Icon(Icons.Filled.Menu, contentDescription = "Menu")
+            Surface(
+
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(bottomStart = 16.dp, bottomEnd = 16.dp)
+            ) {
+                TopAppBar(
+                    backgroundColor = Color(0xFF2A0000),
+                    modifier = Modifier.height(150.dp),
+                    title = { Text(text = "S2M", color = Color(0xff00E0F7), modifier = Modifier.padding(bottom = 80.dp, start = 20.dp)) },
+                    navigationIcon = {
+                        IconButton(onClick = { }) {
+                            Icon(Icons.Filled.Menu, contentDescription = "Menu", tint = Color(0xff00E0F7))
+                        }
                     }
-                }
-            )
+                )
+            }
         },
         drawerContent = {
             DrawerContent(user = user, loginViewModel = loginViewModel, navController = navController)
@@ -145,6 +152,7 @@ fun WelcomeScreen(loginViewModel: LoginViewModel = viewModel(), navController: N
 @Composable
 fun WalletCard(balance: Double, currency: String, cardNumber: String) {
     Card(
+        backgroundColor = Color(0xFF00AAD4),
         shape = RoundedCornerShape(16.dp),
         modifier = Modifier
             .padding(16.dp)

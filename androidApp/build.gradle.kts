@@ -1,6 +1,7 @@
 plugins {
     id("com.android.application")
     kotlin("android")
+    id ("com.google.relay") version "0.3.00"
 }
 
 android {
