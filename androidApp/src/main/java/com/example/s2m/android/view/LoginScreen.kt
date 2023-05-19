@@ -62,7 +62,7 @@ import com.example.s2m.viewmodel.LoginViewModel
             contentScale = ContentScale.Crop
         )
     Scaffold(
-       // backgroundColor = Color(0xFF2A0000),
+        backgroundColor = Color.Black,
         bottomBar = { BottomNavLogin(navController = navController, currentScreen = "welcome") }
     ) {
         Column(

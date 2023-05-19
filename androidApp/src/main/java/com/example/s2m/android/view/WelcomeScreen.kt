@@ -1,6 +1,9 @@
 package com.example.s2m.android.view
 
 import android.annotation.SuppressLint
+import android.graphics.drawable.Icon
+import android.service.quickaccesswallet.WalletCard
+import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.interaction.collectIsDraggedAsState
@@ -15,11 +18,14 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.focus.focusModifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -50,9 +56,6 @@ fun WelcomeScreen(
     val user: User by loginViewModel.user.collectAsState()
     val scaffoldState = rememberScaffoldState()
     val coroutineScope = rememberCoroutineScope()
-    val contextForToast = LocalContext.current.applicationContext
-
-
 
     DisposableEffect(Unit) {
         onDispose {
@@ -60,20 +63,14 @@ fun WelcomeScreen(
             loginViewModel.isWelcomeScreenVisible = false
         }
     }
-
-    // Rest of the composable code
-
     LaunchedEffect(Unit) {
         // This will run when the composable is first displayed
         loginViewModel.isWelcomeScreenVisible = true
     }
 
-    user.responseLogin?.equipmentList?.get(0)
-        ?.let { WalletCard(balance = it.balance, currency = it.currencyAlphaCode, cardNumber = "54",Modifier.fillMaxWidth()) }
+    //user.responseLogin?.equipmentList?.get(0)
+      //  ?.let { WalletCard(balance = it.balance, currency = it.currencyAlphaCode, cardNumber = "54",Modifier.fillMaxWidth()) }
 
-
-//val op = Open(scaffoldState = scaffoldState)
-    
     Scaffold(
 
         scaffoldState = scaffoldState,
@@ -84,50 +81,94 @@ fun WelcomeScreen(
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(bottomStart = 16.dp, bottomEnd = 16.dp)
             ) {
-
                 TopAppBar(
-                    backgroundColor = Color(0xFF2A0000),
+                    backgroundColor = Color.Black,
                     modifier = Modifier.height(150.dp),
                     title = {
                         user.responseLogin?.let {
-                            Row(
-                                modifier =Modifier.padding(bottom = 55.dp),
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                IconButton(onClick = {
-                                    coroutineScope.launch {
-                                        scaffoldState.drawerState.open()
-                                    }
-                                }) {
-                                    Icon(Icons.Filled.Menu, contentDescription = "Menu", tint = Color(0xff00E0F7))
-                                }
+
+                            Box(modifier = Modifier.fillMaxSize()) {
                                 Column(
-                                    modifier = Modifier.padding(start = 16.dp)
+                                    modifier = Modifier.align(Alignment.TopCenter)
                                 ) {
-                                    Text(
-                                        text = "Bonjour ${it.lastName}",
-                                        fontSize = 25.sp,
-                                        fontWeight = FontWeight.SemiBold,
-                                        modifier = Modifier.padding(top = 30.dp)
-                                    )
-                                    Spacer(modifier = Modifier.height(7.dp))
-                                    Text(
-                                        text = "Balance : ${it.equipmentList[0].balance} MAD",
-                                        fontSize = 18.sp,
-                                        textAlign = TextAlign.Center,
-                                        modifier = Modifier
-                                            .fillMaxWidth()
-                                            .padding(end = 80.dp)
-                                    )
+                                    Row(
+                                        modifier = Modifier.padding(bottom = 55.dp),
+                                        verticalAlignment = Alignment.CenterVertically
+                                    ) {
+                                        IconButton(
+                                            onClick = {
+                                                coroutineScope.launch {
+                                                    scaffoldState.drawerState.open()
+                                                }
+                                            },
+                                            modifier = Modifier.padding(bottom = 50.dp)
+                                        ) {
+                                            Icon(
+                                                Icons.Filled.Menu,
+                                                contentDescription = "Menu",
+                                                tint = Color(0xff00E0F7),
+                                                modifier = Modifier.padding(end = 25.dp)
+                                            )
+                                        }
+
+                                        Text(
+                                            text = "Bonjour ${it.firstName}", modifier = Modifier
+                                                .weight(1f)
+                                                .padding(bottom = 50.dp),
+                                            color=Color.White
+                                        )
+
+                                        IconButton(
+                                            onClick = { /*TODO*/ },
+                                            modifier = Modifier.padding(bottom = 50.dp)
+                                        ) {
+                                            Icon(
+                                                Icons.Filled.Notifications,
+                                                contentDescription = "notification",
+                                                tint = Color(0xff00E0F7)
+                                            )
+                                        }
+                                    }
+                                }
+
+                                Row(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    horizontalArrangement = Arrangement.Center,
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Text(text = "Balance: ${it.equipmentList[0].balance} MAD", color = Color.White,modifier=Modifier.padding(top=80.dp,end=70.dp), fontSize = 25.sp, fontStyle = FontStyle.Italic)
                                 }
                             }
+
+
+
+
+
+
+
+                            /* Column(
+                                 modifier = Modifier.padding(start = 16.dp)
+                             ) {
+                                 Text(
+                                     text = "Bonjour ${it.lastName}",
+                                     fontSize = 25.sp,
+                                     fontWeight = FontWeight.SemiBold,
+                                     modifier = Modifier.padding(top = 30.dp)
+                                 )
+                                 Spacer(modifier = Modifier.height(7.dp))
+                                 Text(
+                                     text = "Balance : ${it.equipmentList[0].balance} MAD",
+                                     fontSize = 18.sp,
+                                     textAlign = TextAlign.Center,
+                                     modifier = Modifier
+                                         .fillMaxWidth()
+                                         .padding(end = 80.dp)
+                                 )
+                             }*/
+
                         }
                     }
                 )
-
-
-
-
             }
         },
         drawerContent = {
@@ -139,16 +180,15 @@ fun WelcomeScreen(
     ) {
         val cards = listOf(
             CardData(balance = 1000.0, currency = "USD", cardNumber = "**** **** **** 1234"),
-            CardData(balance = 500.0, currency = "EUR", cardNumber = "**** **** **** 5678"),
-            CardData(balance = 750.0, currency = "GBP", cardNumber = "**** **** **** 9012")
-            // Add more card data as needed
-        )
+            CardData(balance = 20000.0, currency = "USD", cardNumber = "**** **** **** 1234"),
+            CardData(balance = 547.0, currency = "USD", cardNumber = "**** **** **** 1234")
+            )
 
         Card(
             modifier = Modifier.padding(16.dp),
             shape = RoundedCornerShape(16.dp),
 
-        ) {
+            ) {
             AutoSlidingCarousel(
                 itemsCount = cards.size,
                 itemContent = { index ->
@@ -164,27 +204,42 @@ fun WelcomeScreen(
                 }
             )
         }
-       // CardSlider()
-            /*user.responseLogin?.equipmentList?.get(0).let {
-                Spacer(modifier = Modifier.height(20.dp))
-                if (it != null) {
+
+
+
+
+       /* user.responseLogin?.let {
+            val wallets = it.equipmentList
+        Card(
+            modifier = Modifier.padding(16.dp),
+            shape = RoundedCornerShape(16.dp),
+
+        ) {
+            AutoSlidingCarousel(
+                itemsCount = wallets.size,
+                itemContent = { index ->
                     WalletCard(
-                        balance = it.balance,
-                        currency = it.currencyAlphaCode,
-                        cardNumber = "54",
+                        balance = wallets[index].balance,
+                        currency = wallets[index].currencyAlphaCode,
+                        cardNumber = "879",
+                        modifier = Modifier
+                            .padding(30.dp)
+                            .fillMaxSize()
 
-                        )
+                    )
                 }
-            }*/
+            )
+        }}*/
 
 
 
+        val context = LocalContext.current
         Column(
 
             modifier = Modifier
                 .fillMaxSize()
                 .padding(70.dp)
-                .padding(top=130.dp)
+                .padding(top = 130.dp)
                 .background(color = Color.Transparent)
                 ,
 
@@ -194,23 +249,23 @@ fun WelcomeScreen(
 
             Box(
                 contentAlignment = Alignment.Center,
-                modifier = Modifier.width(1500.dp)
+                modifier = Modifier.width(2000.dp)
             ) {
                 Column(
-                    verticalArrangement = Arrangement.spacedBy(20.dp),
+                    verticalArrangement = Arrangement.spacedBy(25.dp),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(16.dp)) {
-                        CustomButton1(onClick = { },text="Transfer")
-                        CustomButton1(onClick = { },text="Transfer")
-                        CustomButton1(onClick = { },text="Transfer")
-                        CustomButton1(onClick = { },text="Transfer")
+                        CustomButton1(onClick = { Toast.makeText(context,"Anglais n9iya",Toast.LENGTH_SHORT).show()},text="Transfer",icon=R.drawable.transfer_money)
+                        CustomButton1(onClick = { },text="Send Money",icon=R.drawable.send_money)
+                        CustomButton1(onClick = { },text="Cash Out",icon=R.drawable.withdraw)
+
                         
                     }
                     Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(16.dp)) {
-                        CustomButton1(onClick = { },text="Transfer")
-                        CustomButton1(onClick = { },text="Transfer")
-                        CustomButton1(onClick = { },text="Transfer")
+                        CustomButton1(onClick = { },text=" History",icon=R.drawable.time_management)
+                        CustomButton1(onClick = { },text="Wallet details",icon=R.drawable.card)
+                        CustomButton1(onClick = { },text="Pay Bills",icon=R.drawable.payment)
 
                     }
                 }
@@ -305,7 +360,7 @@ fun AutoSlidingCarousel(
 
     Box(modifier = modifier
         .fillMaxWidth()
-        .background(color = Color(0xFF2A0000)),
+        .background(color = Color.Black),
     ) {
         HorizontalPager(count = itemsCount, state = pagerState) { page ->
             itemContent(page)
@@ -319,10 +374,10 @@ fun AutoSlidingCarousel(
             color = Color.Black.copy(alpha = 0.5f)
         ) {
             DotsIndicator(
-                modifier = Modifier.padding(horizontal = 8.dp, vertical = 6.dp),
+                modifier = Modifier.padding(horizontal = 8.dp, vertical = 2.dp),
                 totalDots = itemsCount,
                 selectedIndex = if (isDragged) pagerState.currentPage else pagerState.targetPage,
-                dotSize = 8.dp
+                dotSize = 9.dp
             )
         }
     }
@@ -402,38 +457,84 @@ fun UserInfoDrawer(
 }
 
 @Composable
-fun CustomButton1(
+fun CustomButton2(
     modifier: Modifier = Modifier,
     onClick: () -> Unit,
-    text: String
+    text: String,
+    icon: Int
 ) {
     Column(
         modifier = modifier
             .width(72.dp)
             .height(100.dp),
-        verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally
+        
     ) {
         Button(
             shape = RoundedCornerShape(20),
             onClick = onClick,
-            colors = ButtonDefaults.buttonColors(backgroundColor = Color(0xff2a0000)),
+            colors = ButtonDefaults.buttonColors(backgroundColor = Color.Black),
             modifier = modifier
-                .width(72.dp)
-                .height(78.dp)
+                .width(80.dp)
+                .height(75.dp)
         ) {
             Icon(
-                painter = painterResource(id = R.drawable.forex),
+                painter = painterResource(id = icon),
                 contentDescription = "Icon/Wallet",
                 tint = Color(0xff00e0f7)
             )
         }
+        Box(modifier = Modifier.height(500.dp)){
         Text(
+            modifier=Modifier.height(500.dp),
             text = text,
-            textAlign = TextAlign.Center,
+            textAlign = TextAlign.Justify,
             style = MaterialTheme.typography.body2,
-            color=Color.Black
-        )
+            color=Color.Black,
+            
+        
+        )}
     }
 }
 
+@Composable
+fun CustomButton1(
+    modifier: Modifier = Modifier,
+    onClick: () -> Unit,
+    text: String,
+    icon: Int
+) {
+    Column(
+        modifier = modifier
+            .width(72.dp)
+            .height(100.dp),
+    ) {
+        Button(
+            shape = RoundedCornerShape(20),
+            onClick = onClick,
+            colors = ButtonDefaults.buttonColors(backgroundColor = Color.Black),
+            modifier = modifier
+                .width(80.dp)
+                .height(75.dp)
+        ) {
+            Icon(
+                painter = painterResource(id = icon),
+                contentDescription = "Icon/Wallet",
+                tint = Color(0xff00e0f7)
+            )
+        }
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(30.dp)
+        ) {
+            Text(
+                text = text,
+                textAlign = TextAlign.Center,
+                style = MaterialTheme.typography.body2,
+                color = Color.Black,
+                maxLines = 2,
+                overflow = TextOverflow.Visible
+            )
+        }
+    }
+}
