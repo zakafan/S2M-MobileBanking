@@ -1,11 +1,9 @@
-package com.example.s2m.android.view.transferScreen
+package com.example.s2m.android.view.sendMoneyScreen
 
 import android.annotation.SuppressLint
-import android.widget.Toast
-import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.background
-import androidx.compose.foundation.border
+import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.*
@@ -26,40 +24,38 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.s2m.android.util.BottomNav
 import com.example.s2m.android.util.DrawerContent
-import com.example.s2m.android.view.*
+import com.example.s2m.android.util.Routes
+import com.example.s2m.android.view.AutoSlidingCarousel
+import com.example.s2m.android.view.WalletCard
 import com.example.s2m.model.User
 import com.example.s2m.viewmodel.LoginViewModel
 import com.example.s2m.viewmodel.LogoutViewModel
-import com.example.s2m.viewmodel.TransferViewModel
+import com.example.s2m.viewmodel.SendMoneyViewModel
 import com.google.accompanist.pager.ExperimentalPagerApi
 import kotlinx.coroutines.launch
+
 
 @OptIn(ExperimentalPagerApi::class)
 @SuppressLint("UnusedMaterialScaffoldPaddingParameter")
 @Composable
-fun TransferScreen1(
+fun SendMoneyScreen1(
     loginViewModel: LoginViewModel = viewModel(),
-    transferViewModel: TransferViewModel = viewModel(),
-    navController: NavController,
-    logoutViewModel: LogoutViewModel = viewModel()
-
+    sendMoneyViewModel: SendMoneyViewModel = viewModel(),
+    navController: NavController, logoutViewModel: LogoutViewModel = viewModel()
 ){
 
-    val amount:String   by transferViewModel.amount.collectAsState()
-    val memo :String    by transferViewModel.memo.collectAsState()
-    val user: User by loginViewModel.user.collectAsState()
-    val scaffoldState = rememberScaffoldState()
-    val coroutineScope = rememberCoroutineScope()
-    var showDialog by remember { mutableStateOf(false) }
-    var showDialog2 by remember { mutableStateOf(false) }
-    var selectedOption by remember { mutableStateOf("Select beneficiary") }
-   // val options = listOf("Option 1", "Option 2", "Option 3")
-    val beneficiaryList = user.responseLogin?.beneficiaryList
+    val amount:String          by sendMoneyViewModel.amount.collectAsState()
+    val memo :String           by sendMoneyViewModel.memo.collectAsState()
+    val beneficiaryName:String by sendMoneyViewModel.beneficiaryName.collectAsState()
+    val identityNumber:String  by sendMoneyViewModel.identityNumber.collectAsState()
+    val notify:Boolean         by sendMoneyViewModel.notify.collectAsState()
+    val toPhone:String         by sendMoneyViewModel.toPhone.collectAsState()
+    val user: User             by loginViewModel.user.collectAsState()
+    val scaffoldState          = rememberScaffoldState()
+    val coroutineScope         = rememberCoroutineScope()
+    val context                = LocalContext.current
 
-
-    val context = LocalContext.current
-
-
+   // var isTextFieldEmpty by remember { mutableStateOf(false) }
 
     Scaffold(
 
@@ -101,7 +97,7 @@ fun TransferScreen1(
                                         }
 
                                         Text(
-                                            text = "Transfer", modifier = Modifier
+                                            text = "Send Money", modifier = Modifier
                                                 .weight(1f)
                                                 .padding(bottom = 50.dp),
                                             color= Color.White
@@ -115,6 +111,12 @@ fun TransferScreen1(
                                                 Icons.Filled.Notifications,
                                                 contentDescription = "notification",
                                                 tint = Color(0xff00E0F7)
+                                            )
+                                            Text(
+                                                text = "58",
+                                                fontSize = 12.sp,
+                                                color = Color.Red,
+                                                modifier = Modifier.padding(start = 4.dp)
                                             )
                                         }
                                     }
@@ -133,7 +135,6 @@ fun TransferScreen1(
                 )
             }
         },
-
         drawerContent = {
             DrawerContent(user = user, loginViewModel = loginViewModel, navController = navController, logoutViewModel =logoutViewModel )
         },
@@ -145,16 +146,16 @@ fun TransferScreen1(
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(horizontal = 16.dp),
-            
-        ) {
+                .padding(horizontal = 16.dp)
+                .verticalScroll(rememberScrollState())
+            ) {
             Spacer(modifier = Modifier.height(1.dp))
             Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
                 Text(
                     text = "From",
                     fontSize = 24.sp,
                     fontWeight = FontWeight.Bold,
-                    color=Color.Black,
+                    color= Color.Black,
                 )
             }
             user.responseLogin?.let {
@@ -178,7 +179,8 @@ fun TransferScreen1(
                             )
                         }
                     )
-                }}
+                }
+            }
             Spacer(modifier = Modifier.height(5.dp))
             Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
                 Text(
@@ -186,22 +188,9 @@ fun TransferScreen1(
                     fontSize = 24.sp,
                     fontWeight = FontWeight.Bold,
                     color = Color.Black,
-                    )
+                )
             }
-            Box(
-                modifier = Modifier
-                    .width(500.dp)
-                    .background(color = Color.Black, shape = RoundedCornerShape(20.dp)),
-                contentAlignment = Alignment.Center,
-            )
-            {
-                TextButton(
-                    onClick = { showDialog = true },
-                    modifier = Modifier.padding(vertical = 3.dp)
-                ) {
-                    Text(text = selectedOption,color=Color.White, fontSize = 24.sp, fontWeight = FontWeight.Bold)
-                }
-            }
+
             TextField(
                 colors = TextFieldDefaults.textFieldColors(
                     textColor = Color.Black, // Change the text color here
@@ -209,12 +198,64 @@ fun TransferScreen1(
                     focusedIndicatorColor = Color.Transparent, // Change the focused border color here
                     unfocusedIndicatorColor = Color.Transparent // Change the unfocused border color here
                 ),
-                value = amount,
-                onValueChange = { transferViewModel.onAmountChanged(it)},
-                label = { Text("Amount*", color = Color.Black) },
+                value = beneficiaryName,
+                onValueChange = { sendMoneyViewModel.onBeneficiaryNameChanged(it)},
+                label = { Text("Beneficiary Name*", color = Color.Black) },
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(vertical = 16.dp)
+                    .padding(bottom = 16.dp)
+                    .border(
+                        border = BorderStroke(2.dp, color = Color.Black),
+                        shape = RoundedCornerShape(20)
+                    ),
+                shape = RoundedCornerShape(20.dp)
+            )
+            TextField(
+                colors = TextFieldDefaults.textFieldColors(
+                    textColor = Color.Black, // Change the text color here
+                    cursorColor = Color.Blue, // Change the cursor color here
+                    focusedIndicatorColor = Color.Transparent, // Change the focused border color here
+                    unfocusedIndicatorColor = Color.Transparent // Change the unfocused border color here
+                ),
+                value = identityNumber,
+                onValueChange = { sendMoneyViewModel.onIdentityNumberChanged(it)},
+                label = { Text("Identity Number*", color = Color.Black) },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(bottom = 16.dp)
+                    .border(
+                        border = BorderStroke(2.dp, color = Color.Black),
+                        shape = RoundedCornerShape(20)
+                    ),
+                shape = RoundedCornerShape(20.dp)
+            )
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.fillMaxWidth().height(60.dp)) {
+                CustomToggleButton(selected = notify) {
+                    sendMoneyViewModel.onNotifyChanged(it)
+                }
+                Text(
+                    text = "Notify beneficiary by sms",
+                    modifier = Modifier.padding(start = 8.dp),
+                    color=Color.DarkGray
+                )
+            }
+
+
+            TextField(
+                colors = TextFieldDefaults.textFieldColors(
+                    textColor = Color.Black, // Change the text color here
+                    cursorColor = Color.Blue, // Change the cursor color here
+                    focusedIndicatorColor = Color.Transparent, // Change the focused border color here
+                    unfocusedIndicatorColor = Color.Transparent // Change the unfocused border color here
+                ),
+                value = toPhone,
+                onValueChange = { sendMoneyViewModel.ontoPhoneChanged(it)},
+                label = { Text("Beneficiary Phone*", color = Color.Black) },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(bottom = 16.dp)
                     .border(
                         border = BorderStroke(2.dp, color = Color.Black),
                         shape = RoundedCornerShape(20)
@@ -230,32 +271,53 @@ fun TransferScreen1(
                     focusedIndicatorColor = Color.Transparent, // Change the focused border color here
                     unfocusedIndicatorColor = Color.Transparent // Change the unfocused border color here
                 ),
+                value = amount,
+                onValueChange = { sendMoneyViewModel.onAmountChanged(it)},
+                label = { Text("Amount*", color = Color.Black) },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 16.dp)
+                    .border(
+                        border = BorderStroke(2.dp, color = Color.Black),
+                        shape = RoundedCornerShape(20)
+                    ),
+                shape = RoundedCornerShape(20.dp),
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
+            )
+           /* fun onConfirmButtonClick() {
+                if (memo.isEmpty()) {
+                    isTextFieldEmpty = true
+                } else {
+                    isTextFieldEmpty = false
+                    // Perform other actions or validations here
+                }
+            }*/
+            TextField(
+                colors = TextFieldDefaults.textFieldColors(
+                    textColor = Color.Black, // Change the text color here
+                    cursorColor = Color.Blue, // Change the cursor color here
+                    focusedIndicatorColor = Color.Transparent, // Change the focused border color here
+                    unfocusedIndicatorColor = Color.Transparent // Change the unfocused border color here
+                ),
                 value = memo,
-                onValueChange = { transferViewModel.onMemoChanged(it)},
+                onValueChange = { sendMoneyViewModel.onMemoChanged(it)},
                 label = { Text("Memo*", color = Color.Black) },
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(bottom = 16.dp)
                     .border(
-                        border = BorderStroke(2.dp, color = Color.Black),
+                        border = BorderStroke(2.dp, color =  Color.Black),
                         shape = RoundedCornerShape(20)
                     ),
                 shape = RoundedCornerShape(20.dp)
             )
-
+            Box(
+             modifier=Modifier.height(120.dp)
+            ){
             Button(
                 colors = ButtonDefaults.buttonColors(backgroundColor = Color(0xff00E0F7)),
                 shape = RoundedCornerShape(50),
-                onClick = {
-                   if(selectedOption=="Select beneficiary"){
-                       Toast.makeText(context,"Please choose a beneficiary!!",Toast.LENGTH_SHORT).show()
-                   }else if(memo =="" || amount==""){
-                       showDialog2 = true
-                       Toast.makeText(context,"Fill the necessary fields!! ",Toast.LENGTH_SHORT).show()
-                   }  else {
-                       navController.navigate("transfer2")
-                   }
-                },
+                onClick = { navController.navigate(Routes.Send2.name)  },
                 modifier = Modifier
                     .width(500.dp)
                     .height(45.dp)
@@ -266,93 +328,48 @@ fun TransferScreen1(
                     color = Color.White,
                 )
             }
-            if (showDialog) {
-                AlertDialog(
-
-                    onDismissRequest = { showDialog = false },
-                    title = {
-                        Text(text = "Choose a beneficiary")
-                    },
-                    buttons = {
-                        Column {
-                           beneficiaryList?.forEach { beneficiary ->
-                               Button(
-                                   colors = ButtonDefaults.buttonColors(
-                                       backgroundColor = Color(
-                                           0xff00E0F7
-                                       )
-                                   ),
-                                   onClick = {
-                                       selectedOption = beneficiary.name
-                                       transferViewModel.ontoPhoneChanged(beneficiary.mobilePhone)
-                                       transferViewModel.onBeneficiaryNameChanged(beneficiary.name)
-                                       showDialog = false
-
-                                   },
-                                   modifier = Modifier
-                                       .fillMaxWidth()
-                                       .padding(vertical = 8.dp)
-                               ) {
-                                   Text(text = beneficiary.name, color = Color.Black)
-                               }
-
-                           }
-                            Button(
-                                colors = ButtonDefaults.buttonColors(backgroundColor = Color.Yellow),
-                                shape = RoundedCornerShape(50),
-                                onClick = {
-                                    Toast.makeText(context, "Still in development", Toast.LENGTH_SHORT).show()
-                                },
-                                modifier = Modifier
-                                    .padding(start=85.dp)
-
-
-                            ) {
-
-                                Text(
-                                    text = "Add beneficiary",
-                                    color = Color.Black,
-                                )
-                            }
-                        }
-                    }
-                )
             }
-            if (showDialog2) {
-                AlertDialog(
-                    modifier = Modifier.height(150.dp).width(300.dp),
 
-                    onDismissRequest = { showDialog2 = false },
-                    title = {
-                        Text(text = "Fill the necessary fields",modifier=Modifier.padding(start=40.dp,top=20.dp))
-                    },
-                    buttons = {
-                        Column {
-
-                            Button(
-                                colors = ButtonDefaults.buttonColors(backgroundColor = Color.Red),
-                                shape = RoundedCornerShape(50),
-                                onClick = {
-                                    showDialog2 = false
-
-                                },
-                                modifier = Modifier
-                                    .padding(start=50.dp,top=60.dp).width(200.dp)
-
-
-                            ) {
-
-                                Text(
-                                    text = "OK",
-                                    color = Color.Black,
-                                )
-                            }
-                        }
-                    }
-                )
-            }
-        }
         }
     }
+}
+
+@Composable
+fun CheckCircle(
+    modifier: Modifier = Modifier
+) {
+
+    Card(
+        shape = CircleShape, modifier = modifier.size(20.dp), elevation = 0.dp
+    ) {
+        Box(modifier = Modifier.background(Color.White))
+    }
+
+}
+
+@Composable
+fun CustomToggleButton(
+    selected: Boolean,
+    modifier: Modifier = Modifier,
+    onUpdate: (Boolean) -> Unit
+) {
+
+    Card(
+        modifier = modifier
+            .width(50.dp)
+            .clickable {
+                onUpdate(!selected)
+            }, shape = RoundedCornerShape(16.dp), elevation = 0.dp
+    ) {
+        Box(
+            modifier = Modifier.background(
+                if (selected) Color(0xff00E0F7) else Color.Black
+            ), contentAlignment = if (selected) Alignment.TopEnd else Alignment.TopStart
+        ) {
+            CheckCircle(modifier = Modifier.padding(5.dp))
+        }
+    }
+
+}
 
 

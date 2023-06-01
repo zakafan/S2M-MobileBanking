@@ -19,10 +19,17 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.s2m.android.view.UserInfoDrawer
 import com.example.s2m.model.User
+import com.example.s2m.repository.AlertRepository
+import com.example.s2m.repository.LoginRepository
+import com.example.s2m.repository.LogoutRepository
+import com.example.s2m.viewmodel.AlertsViewModel
 import com.example.s2m.viewmodel.LoginViewModel
+import com.example.s2m.viewmodel.LogoutViewModel
 
 @Composable
-fun DrawerContent(user: User, loginViewModel: LoginViewModel, navController: NavController){
+fun DrawerContent(user: User, loginViewModel: LoginViewModel, navController: NavController, logoutViewModel: LogoutViewModel){
+
+
 
     Column(
         modifier = Modifier.fillMaxSize(),
@@ -95,11 +102,14 @@ fun DrawerContent(user: User, loginViewModel: LoginViewModel, navController: Nav
         // Logout Button
         Button(
             onClick = {
-                loginViewModel.clearState()
-                navController.navigate("login"){
-                    popUpTo("login"){
+
+                if(logoutViewModel.logout()){
+                    loginViewModel.clearState()
+                    navController.navigate("login"){
+                    popUpTo(navController.graph.id){
                         inclusive = true
                     }
+                }
                 }
             },
             modifier = Modifier

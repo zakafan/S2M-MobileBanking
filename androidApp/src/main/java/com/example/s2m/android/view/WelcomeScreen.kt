@@ -34,8 +34,11 @@ import androidx.navigation.NavController
 import com.example.s2m.android.util.BottomNav
 import com.example.s2m.android.util.DrawerContent
 import com.example.s2m.android.R
+import com.example.s2m.android.util.Routes
 import com.example.s2m.model.User
+import com.example.s2m.viewmodel.AlertsViewModel
 import com.example.s2m.viewmodel.LoginViewModel
+import com.example.s2m.viewmodel.LogoutViewModel
 import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.accompanist.pager.HorizontalPager
 import com.google.accompanist.pager.PagerState
@@ -48,10 +51,14 @@ import kotlinx.coroutines.launch
 @Composable
 fun WelcomeScreen(
     loginViewModel: LoginViewModel = viewModel(),
-    navController: NavController
+    navController: NavController,
+    alertsViewModel: AlertsViewModel = viewModel(),
+    logoutViewModel: LogoutViewModel = viewModel()
 
 ) {
 
+    alertsViewModel.getUnreadedAlert()
+    val unreadNotificationCount by alertsViewModel.unreadNotificationCount.collectAsState()
 
     val user: User by loginViewModel.user.collectAsState()
     val scaffoldState = rememberScaffoldState()
@@ -74,7 +81,7 @@ fun WelcomeScreen(
     Scaffold(
 
         scaffoldState = scaffoldState,
-        backgroundColor = Color(0xFFC4C4C4),
+        backgroundColor = Color(0xffE5FBFE),
         topBar = {
             Surface(
 
@@ -118,16 +125,25 @@ fun WelcomeScreen(
                                             color=Color.White
                                         )
 
-                                        IconButton(
-                                            onClick = { /*TODO*/ },
-                                            modifier = Modifier.padding(bottom = 50.dp)
+                                        BadgedBox(
+                                            badge = { Badge { Text(unreadNotificationCount.toString()) } },
+                                            modifier = Modifier.padding(end = 22.dp,top=10.dp)
                                         ) {
-                                            Icon(
-                                                Icons.Filled.Notifications,
-                                                contentDescription = "notification",
-                                                tint = Color(0xff00E0F7)
-                                            )
+                                            IconButton(
+                                                onClick = {
+                                                    alertsViewModel.getAlert()
+                                                    navController.navigate(Routes.Alerts.name)
+                                                },
+                                                modifier = Modifier.padding(bottom = 50.dp)
+                                            ) {
+                                                Icon(
+                                                    Icons.Filled.Notifications,
+                                                    contentDescription = "notification",
+                                                    tint = Color(0xff00E0F7)
+                                                )
+                                            }
                                         }
+
                                     }
                                 }
 
@@ -172,7 +188,7 @@ fun WelcomeScreen(
             }
         },
         drawerContent = {
-            DrawerContent(user = user, loginViewModel = loginViewModel, navController = navController)
+            DrawerContent(user = user, loginViewModel = loginViewModel, navController = navController, logoutViewModel =logoutViewModel )
         },
         bottomBar = {
             BottomNav(navController = navController,"welcome")
@@ -186,7 +202,8 @@ fun WelcomeScreen(
 
         Card(
             modifier = Modifier.padding(16.dp),
-            shape = RoundedCornerShape(16.dp),
+            shape = RoundedCornerShape(18.dp),
+            backgroundColor = Color(0xffE5FBFE)
 
             ) {
             AutoSlidingCarousel(
@@ -256,14 +273,14 @@ fun WelcomeScreen(
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(16.dp)) {
-                        CustomButton1(onClick = { Toast.makeText(context,"Anglais n9iya",Toast.LENGTH_SHORT).show()},text="Transfer",icon=R.drawable.transfer_money)
-                        CustomButton1(onClick = { },text="Send Money",icon=R.drawable.send_money)
+                        CustomButton1(onClick = { navController.navigate(Routes.Transfer1.name)},text="Transfer",icon=R.drawable.transfer_money)
+                        CustomButton1(onClick = { navController.navigate(Routes.Send1.name) },text="Send Money",icon=R.drawable.send_money)
                         CustomButton1(onClick = { },text="Cash Out",icon=R.drawable.withdraw)
 
                         
                     }
                     Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(16.dp)) {
-                        CustomButton1(onClick = { },text=" History",icon=R.drawable.time_management)
+                        CustomButton1(onClick = { navController.navigate(Routes.History.name) },text=" History",icon=R.drawable.time_management)
                         CustomButton1(onClick = { },text="Wallet details",icon=R.drawable.card)
                         CustomButton1(onClick = { },text="Pay Bills",icon=R.drawable.payment)
 
@@ -279,7 +296,7 @@ fun WelcomeScreen(
 @Composable
 fun WalletCard(balance: Double, currency: String, cardNumber: String,modifier:Modifier) {
     Card(
-        backgroundColor = Color(0xFF00AAD4),
+        backgroundColor = Color(0xff00E0F7),
         shape = RoundedCornerShape(16.dp),
         modifier = Modifier
             .padding(25.dp)

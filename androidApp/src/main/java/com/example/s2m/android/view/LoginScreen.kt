@@ -2,19 +2,22 @@ package com.example.s2m.android.view
 
 import android.annotation.SuppressLint
 import android.widget.Toast
+import androidx.activity.OnBackPressedCallback
+import androidx.activity.compose.LocalOnBackPressedDispatcherOwner
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.*
+import androidx.compose.material.MaterialTheme.colors
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.Delete
@@ -22,6 +25,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.scale
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
@@ -30,6 +34,7 @@ import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -39,21 +44,33 @@ import com.example.s2m.android.R
 import com.example.s2m.android.getHash
 import com.example.s2m.android.util.BottomNavLogin
 import com.example.s2m.util.LoginErrorType
+import com.example.s2m.viewmodel.ForexViewModel
 import com.example.s2m.viewmodel.LoginViewModel
-
+import kotlinx.coroutines.coroutineScope
 
 
 @OptIn(ExperimentalComposeUiApi::class)
 @SuppressLint("UnusedMaterialScaffoldPaddingParameter")
 @Composable
- fun LoginScreen(loginViewModel: LoginViewModel = viewModel(), navController: NavController) {
+ fun LoginScreen(
+    loginViewModel: LoginViewModel = viewModel(),
+    navController: NavController,
+    forexViewModel: ForexViewModel= viewModel()) {
+
+    val onBackPressedDispatcher = LocalOnBackPressedDispatcherOwner.current?.onBackPressedDispatcher
     val login: String by loginViewModel.login.collectAsState()
     val password: String by loginViewModel.password.collectAsState()
-    val activeTextField = remember { mutableStateOf<TextFieldType?>(TextFieldType.USERNAME) }
-    //val transferViewModel = TransferViewModel(repository = TransferRepository(loginViewModel=loginViewModel))
+    val activeTextField = remember { mutableStateOf<TextFieldType?>(TextFieldType.PASSWORD) }
     val keyboardController = LocalSoftwareKeyboardController.current
-    val MAX_USERNAME_LENGTH = 9
-    val MAX_PASSWORD_LENGTH = 8
+    val maxLoginLength = 9
+    val maxPasswordLength = 8
+    val context = LocalContext.current
+    val isLoading1 by loginViewModel.isLoading.collectAsState()
+    val loginState by loginViewModel.loginState.collectAsState()
+    var isLoading by remember { mutableStateOf(false) }
+
+    val coroutineScope = rememberCoroutineScope()
+
 
     Box( modifier = Modifier.fillMaxSize()) {
         Image(
@@ -63,7 +80,7 @@ import com.example.s2m.viewmodel.LoginViewModel
         )
     Scaffold(
         backgroundColor = Color.Black,
-        bottomBar = { BottomNavLogin(navController = navController, currentScreen = "welcome") }
+        bottomBar = { BottomNavLogin(navController = navController, currentScreen = "welcome", forexViewModel = forexViewModel) }
     ) {
         Column(
             modifier = Modifier
@@ -81,18 +98,15 @@ import com.example.s2m.viewmodel.LoginViewModel
             )
             Spacer(modifier = Modifier.height(16.dp))
             OutlinedTextField(
-                readOnly = true,
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                readOnly = false,
                 keyboardActions = KeyboardActions { keyboardController?.hide() },
                 modifier = Modifier
                     .border(
                         border = BorderStroke(1.dp, Color(0xff00E0F7)),
                         shape = RoundedCornerShape(10.dp)
                     )
-                    .onFocusChanged {
-                        if (it.isFocused) {
-                            activeTextField.value = TextFieldType.USERNAME
-                        }
-                    },
+                    ,
                 colors = TextFieldDefaults.outlinedTextFieldColors(
                     focusedBorderColor = Color.Transparent, // Customize the focused border color here
                     unfocusedBorderColor = Color.Transparent, // Customize the unfocused border color here
@@ -141,11 +155,11 @@ import com.example.s2m.viewmodel.LoginViewModel
                     activeTextField = it1,
                     onKeyPressed = { key, activeTextField ->
                         if (activeTextField == TextFieldType.USERNAME) {
-                            val newLogin = (login + key).take(MAX_USERNAME_LENGTH)
+                            val newLogin = (login + key).take(maxLoginLength)
                             loginViewModel.onLoginTextChanged(newLogin)
 
                         } else if (activeTextField == TextFieldType.PASSWORD) {
-                            val newPass = (password + key).take(MAX_PASSWORD_LENGTH)
+                            val newPass = (password + key).take(maxPasswordLength)
                             loginViewModel.onPasswordTextChanged(newPass)
 
                         }
@@ -187,46 +201,60 @@ import com.example.s2m.viewmodel.LoginViewModel
                 )
 
             }
-
-
-            val context = LocalContext.current
+              /*  if (isLoading) {
+                    Box(
+                        modifier = Modifier.fillMaxSize(),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        CircularProgressIndicator()
+                    }
+                }
+*/
+            
             Button(
                 shape = RoundedCornerShape(50),
                 onClick = {
-                    if (loginViewModel.login2(
-                            login, getHash(password)
-                        ) == LoginViewModel.LoginState.Success
-                    ) {
-                        navController.navigate("welcome")
-                    } else if (loginViewModel.login2(
-                            login,
-                            getHash(password)
-                        ) == LoginViewModel.LoginState.Error(errorType = LoginErrorType.Api)
-                    ) {
-                        Toast.makeText(context, "API error", Toast.LENGTH_SHORT).show()
-                    } else if (loginViewModel.login2(
-                            login,
-                            getHash(password)
-                        ) == LoginViewModel.LoginState.Error(errorType = LoginErrorType.Http)
-                    ) {
-                        Toast.makeText(context, "Incorrect email or password", Toast.LENGTH_SHORT)
-                            .show()
-                    } else if (loginViewModel.login2(
-                            login,
-                            getHash(password)
-                        ) == LoginViewModel.LoginState.Error(errorType = LoginErrorType.Connection)
-                    ) {
-                        Toast.makeText(
-                            context,
-                            "Check your internet connection",
-                            Toast.LENGTH_SHORT
-                        )
-                            .show()
-                    } else {
-                        Toast.makeText(context, "unknown error", Toast.LENGTH_SHORT).show()
-                    }
 
-                },
+                        if (loginViewModel.login2(
+                                login,
+                                getHash(password)
+                            ) == LoginViewModel.LoginState.Success
+                        ) {
+                            navController.navigate("welcome")
+                        } else if (loginViewModel.login2(
+                                login,
+                                getHash(password)
+                            ) == LoginViewModel.LoginState.Error(errorType = LoginErrorType.Api)
+                        ) {
+                            Toast.makeText(context, "API error", Toast.LENGTH_SHORT).show()
+                        } else if (loginViewModel.login2(
+                                login,
+                                getHash(password)
+                            ) == LoginViewModel.LoginState.Error(errorType = LoginErrorType.Http)
+                        ) {
+                            Toast.makeText(
+                                context,
+                                "Incorrect email or password",
+                                Toast.LENGTH_SHORT
+                            )
+                                .show()
+                        } else if (loginViewModel.login2(
+                                login,
+                                getHash(password)
+                            ) == LoginViewModel.LoginState.Error(errorType = LoginErrorType.Connection)
+                        ) {
+                            Toast.makeText(
+                                context,
+                                "Check your internet connection",
+                                Toast.LENGTH_SHORT
+                            )
+                                .show()
+                        } else {
+                            Toast.makeText(context, "unknown error", Toast.LENGTH_SHORT).show()
+                        }
+
+                    }
+                ,
                 colors = ButtonDefaults.buttonColors(backgroundColor = Color(0xff00E0F7)),
 
                 modifier = Modifier
@@ -354,11 +382,6 @@ fun CustomKeyboard1(
                         Icon(Icons.Filled.Clear, contentDescription = "Clear", tint = Color.White)
 
                     }
-                    /*KeyboardButton(
-                        text = "X",
-                        onClick = {
-                            onBackspacePressed()
-                        })*/
                 }
             } else {
                 row.forEach { key ->
@@ -377,4 +400,68 @@ enum class TextFieldType {
     USERNAME, PASSWORD
 }
 
+@Composable
+fun LoadingAnimation1(
+    circleColor: Color = Color.Magenta,
+    animationDelay: Int = 1000
+) {
+
+    // circle's scale state
+    var circleScale by remember {
+        mutableStateOf(0f)
+    }
+
+    // animation
+    val circleScaleAnimate = animateFloatAsState(
+        targetValue = circleScale,
+        animationSpec = infiniteRepeatable(
+            animation = tween(
+                durationMillis = animationDelay
+            )
+        )
+    )
+
+    // This is called when the app is launched
+    LaunchedEffect(Unit) {
+        circleScale = 1f
+    }
+
+    // animating circle
+    Box(
+        modifier = Modifier
+            .size(size = 64.dp)
+            .scale(scale = circleScaleAnimate.value)
+            .border(
+                width = 4.dp,
+                color = circleColor.copy(alpha = 1 - circleScaleAnimate.value),
+                shape = CircleShape
+            )
+    ) {
+
+    }
+}
+
+@Composable
+fun LoadingButton(
+    text: String,
+    onClick: () -> Unit,
+    isLoading: Boolean,
+) {
+    Button(
+        onClick = onClick,
+        modifier = Modifier.fillMaxWidth(),
+        enabled = !isLoading,
+    ) {
+        if (isLoading) {
+            CircularProgressIndicator(
+                modifier = Modifier
+                    .size(24.dp)
+                    .padding(4.dp),
+                color = MaterialTheme.colors.primary,
+            )
+        } else {
+            Text(text)
+        }
+    }
+}
 

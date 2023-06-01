@@ -50,30 +50,32 @@ class LoginViewModel(private val repository: LoginRepository):ViewModel() {
     }
 
     fun login2(username: String, pass: String): LoginState {
-
+        _isLoading.value = true
         try {
 
             runBlocking {
-                _isLoading.value = true
+
                 val response = async {
                     repository.login(username, pass)
                 }
 
-                _isLoading.value = false
                  _loginState.value =
                      if (response.await()?.responseCode == "000") {
                          _user.value.responseLogin =response.await()?.responseLogin
                          _token.value.accessToken=response.await()?.accessToken
                          println(token.value)
+                         _isLoading.value = false
                          LoginState.Success
                      } else {
 
                          val errorType: LoginErrorType = if (response.await()?.responseCode !== "000") {
+                             _isLoading.value = false
                              LoginErrorType.Http
                          } else {
-
+                             _isLoading.value = false
                              LoginErrorType.Api
                          }
+                         _isLoading.value = false
                          LoginState.Error(errorType)
                      }
                  }
@@ -81,8 +83,10 @@ class LoginViewModel(private val repository: LoginRepository):ViewModel() {
         }catch (e:IOException){
             _loginState.value = LoginState.Error(LoginErrorType.Connection)
         }
+        _isLoading.value=false
         return _loginState.value
     }
+
 
 
     sealed class LoginState {
@@ -93,27 +97,3 @@ class LoginViewModel(private val repository: LoginRepository):ViewModel() {
 
     }
 }
-
-
-
-
-
-/*  fun login(username: String, pass: String): Boolean {
-
-        runBlocking {
-            val response = async {
-                repository.login(username, pass)?.responseCode ?: ""
-
-            }
-            if (response.await() == "000") {
-
-                status = true
-
-            } else {
-                println("False credentials")
-            }
-        }
-        return status
-    }*/
-
-

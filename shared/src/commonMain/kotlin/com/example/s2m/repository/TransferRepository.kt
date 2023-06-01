@@ -13,10 +13,9 @@ import io.ktor.http.*
 
 
 class TransferRepository(loginViewModel: LoginViewModel) {
+
     private val client = ApiClient.client
     private val tok = loginViewModel.token
-
-
 
     suspend fun transfer(amount:String,memo:String,toPhone:String,pin:String): TransferResponse?{
 

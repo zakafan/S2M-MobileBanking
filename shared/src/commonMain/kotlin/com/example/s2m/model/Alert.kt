@@ -14,15 +14,11 @@ data class Alert (
     @SerialName("messageTxt")
     var messageTxt:String,
     @SerialName("readedDate")
-    var readedDate:String,
+    var readedDate:String?,
     @SerialName("date")
     var date:String,
     @SerialName("alertType")
     var alertType:String,
-
-
-
-    var adapteDate:String="",
-    var type:String=""
-
+    @SerialName("messageTypeIden")
+    var messageTypeIden:String
         )

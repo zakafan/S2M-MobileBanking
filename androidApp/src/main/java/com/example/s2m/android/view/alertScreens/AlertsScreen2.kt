@@ -1,7 +1,8 @@
-package com.example.s2m.android.view
+package com.example.s2m.android.view.alertScreens
 
 import android.annotation.SuppressLint
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
@@ -9,10 +10,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -25,26 +23,33 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.s2m.android.util.BottomNav
 import com.example.s2m.android.util.DrawerContent
+import com.example.s2m.model.Alert
 import com.example.s2m.model.User
+import com.example.s2m.viewmodel.AlertsViewModel
 import com.example.s2m.viewmodel.LoginViewModel
 import com.example.s2m.viewmodel.LogoutViewModel
 import kotlinx.coroutines.launch
 
-
 @SuppressLint("UnusedMaterialScaffoldPaddingParameter")
 @Composable
-fun BeneficiaryScreen(
+fun AlertsScreen2(
+    alert:Alert,
+    alertsViewModel: AlertsViewModel = viewModel(),
     loginViewModel: LoginViewModel = viewModel(),
     navController: NavController,
     logoutViewModel: LogoutViewModel = viewModel()
-) {
+){
 
     val user: User by loginViewModel.user.collectAsState()
     val scaffoldState = rememberScaffoldState()
     val coroutineScope = rememberCoroutineScope()
 
+    DisposableEffect(Unit) {
+        onDispose {
+            alertsViewModel.onChangeVisibility(false)
+        }
+    }
 
-    val beneficiaryList = user.responseLogin?.beneficiaryList
 
     Scaffold(
 
@@ -86,7 +91,7 @@ fun BeneficiaryScreen(
                                         }
 
                                         Text(
-                                            text = "Beneficiary List", modifier = Modifier
+                                            text = "Notifications", modifier = Modifier
                                                 .weight(1f)
                                                 .padding(bottom = 50.dp),
                                             color=Color.White
@@ -136,100 +141,55 @@ fun BeneficiaryScreen(
     ) {
 
 
-        if (beneficiaryList != null) {
-            if (beneficiaryList.isNotEmpty()) {
-                LazyColumn(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(10.dp)
-                        .background(color = Color.Transparent)
+
+        Card(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(vertical = 8.dp, horizontal = 4.dp),
+            elevation = 4.dp,
+            backgroundColor = Color.White,
+            shape = RoundedCornerShape(15.dp),
+
+            ) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp, vertical = 8.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                // Beneficiary Info
+                Column(
+                    modifier = Modifier.weight(1f)
                 ) {
-                    itemsIndexed(beneficiaryList) { _, beneficiary ->
-                        Card(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(vertical = 8.dp, horizontal = 4.dp),
-                            elevation = 4.dp,
-                            backgroundColor = Color.White,
-                            shape = RoundedCornerShape(15.dp)
-                        ) {
-                            Row(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(horizontal = 16.dp, vertical = 8.dp),
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                // Beneficiary Info
-                                Column(
-                                    modifier = Modifier.weight(1f)
-                                ) {
-                                    Text(
-                                        text = beneficiary.name,
-                                        fontSize = 18.sp,
-                                        fontWeight = FontWeight.Bold,
-                                        color=Color.Black
-                                    )
-                                    Spacer(modifier = Modifier.height(4.dp))
-                                    beneficiary.accountNumber?.let { it1 ->
-                                        Text(
-                                            text = it1,
-                                            fontSize = 14.sp,
-                                            color = Color.Gray
-                                        )
-                                    }
-                                    Spacer(modifier = Modifier.height(4.dp))
-                                    Text(
-                                        text = beneficiary.mobilePhone,
-                                        fontSize = 14.sp,
-                                        color = Color.Gray
-                                    )
-                                }
-
-                                // Edit Button
-                                IconButton(
-                                    onClick = {
-                                        /* navController.navigate(
-                                            Screens.AddBeneficiaryScreen.route +
-                                                    "/${beneficiary.id}"
-                                        )*/
-                                    }
-                                ) {
-                                    Icon(Icons.Filled.Edit, contentDescription = "Edit Beneficiary",)
-                                }
-
-                                // Delete Button
-                                IconButton(
-                                    onClick = {
-                                        // loginViewModel.deleteBeneficiary(beneficiary)
-                                    }
-                                ) {
-                                    Icon(
-                                        Icons.Filled.Delete,
-                                        contentDescription = "Delete Beneficiary",
-                                        tint = Color.Red
-                                    )
-                                }
-                            }
-                        }
+                    Text(
+                        text = alert.messageType,
+                        fontSize = 18.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = Color.Black
+                    )
+                    Spacer(modifier = Modifier.height(4.dp))
+                    alert.messageTxt?.let { it1 ->
+                        Text(
+                            text = it1,
+                            fontSize = 14.sp,
+                            color = Color.Gray
+                        )
                     }
+                    Spacer(modifier = Modifier.height(4.dp))
+                    Text(
+                        text = alert.messageTypeIden,
+                        fontSize = 14.sp,
+                        color = Color.Gray
+                    )
                 }
-            } else {
-                Text(
-                    text = "No Beneficiaries added yet!",
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(16.dp),
-                    fontSize = 20.sp,
-                    fontWeight = FontWeight.Bold,
-                    textAlign = TextAlign.Center
-                )
             }
         }
 
 
 
-
     }
 
-}
 
+
+
+}

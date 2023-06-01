@@ -12,10 +12,8 @@ import io.ktor.http.*
 
 
  class LoginRepository() {
-      var resp:HttpStatusCode= HttpStatusCode(123456,"Default")
 
-
-
+     var resp:HttpStatusCode= HttpStatusCode(123456,"Default")
      private val client = ApiClient.client
 
     suspend fun login(username: String, password: String): LoginResponse? {
@@ -30,16 +28,11 @@ import io.ktor.http.*
 
 
         return try {
-
-
-
             val response = client.post("https://mobile-sandbox.s2m.ma/mobile-web-api/mptf/generic/1/0/authentication/login"){
                 contentType(ContentType.Application.Json)
                 setBody(data)
             }
             resp = response.status
-            //val responseLogin = response.body<ResponseLogin?>()?.
-           // println(responseLogin)
             println(resp)
             return response.body<LoginResponse?>()
 
