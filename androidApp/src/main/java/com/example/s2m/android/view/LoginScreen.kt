@@ -25,6 +25,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.blur
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
@@ -40,9 +41,11 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import com.example.s2m.android.LocationPermissionCallback
 import com.example.s2m.android.R
 import com.example.s2m.android.getHash
 import com.example.s2m.android.util.BottomNavLogin
+import com.example.s2m.android.util.Routes
 import com.example.s2m.util.LoginErrorType
 import com.example.s2m.viewmodel.ForexViewModel
 import com.example.s2m.viewmodel.LoginViewModel
@@ -55,7 +58,9 @@ import kotlinx.coroutines.coroutineScope
  fun LoginScreen(
     loginViewModel: LoginViewModel = viewModel(),
     navController: NavController,
-    forexViewModel: ForexViewModel= viewModel()) {
+    forexViewModel: ForexViewModel= viewModel(),
+    callback: LocationPermissionCallback
+) {
 
     val onBackPressedDispatcher = LocalOnBackPressedDispatcherOwner.current?.onBackPressedDispatcher
     val login: String by loginViewModel.login.collectAsState()
@@ -67,9 +72,10 @@ import kotlinx.coroutines.coroutineScope
     val context = LocalContext.current
     val isLoading1 by loginViewModel.isLoading.collectAsState()
     val loginState by loginViewModel.loginState.collectAsState()
-    var isLoading by remember { mutableStateOf(false) }
+    var loginInProgress by remember { mutableStateOf(false) }
 
-    val coroutineScope = rememberCoroutineScope()
+
+
 
 
     Box( modifier = Modifier.fillMaxSize()) {
@@ -79,8 +85,10 @@ import kotlinx.coroutines.coroutineScope
             contentScale = ContentScale.Crop
         )
     Scaffold(
-        backgroundColor = Color.Black,
-        bottomBar = { BottomNavLogin(navController = navController, currentScreen = "welcome", forexViewModel = forexViewModel) }
+        backgroundColor = Color(0xffE5FBFE),
+        bottomBar = { BottomNavLogin(navController = navController, currentScreen = "welcome", forexViewModel = forexViewModel
+        ) { callback.requestLocationPermissions() }
+        }
     ) {
         Column(
             modifier = Modifier
@@ -94,16 +102,16 @@ import kotlinx.coroutines.coroutineScope
                 text = "Login",
                 fontSize = 24.sp,
                 fontWeight = FontWeight.Bold,
-                color = Color.White
+                color = Color.Black
             )
             Spacer(modifier = Modifier.height(16.dp))
             OutlinedTextField(
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number, imeAction = ImeAction.Done),
                 readOnly = false,
                 keyboardActions = KeyboardActions { keyboardController?.hide() },
                 modifier = Modifier
                     .border(
-                        border = BorderStroke(1.dp, Color(0xff00E0F7)),
+                        border = BorderStroke(1.dp, Color.Black),
                         shape = RoundedCornerShape(10.dp)
                     )
                     ,
@@ -111,21 +119,21 @@ import kotlinx.coroutines.coroutineScope
                     focusedBorderColor = Color.Transparent, // Customize the focused border color here
                     unfocusedBorderColor = Color.Transparent, // Customize the unfocused border color here
                     disabledBorderColor = Color.Transparent, // Customize the disabled border color here
-                    textColor = Color.White
+                    textColor = Color.Black
                 ),
                 value = login,
                 onValueChange = {
                     if (it.length <= 9) loginViewModel.onLoginTextChanged(it)
                 },
 
-                label = { Text(text = "Login", color = Color.White) }
+                label = { Text(text = "Login", color = Color.Black) }
             )
             Spacer(modifier = Modifier.height(8.dp))
             OutlinedTextField(
                 readOnly = true,
                 modifier = Modifier
                     .border(
-                        border = BorderStroke(1.dp, Color(0xff00E0F7)),
+                        border = BorderStroke(1.dp, Color.Black),
                         shape = RoundedCornerShape(10.dp)
                     )
                     .onFocusChanged {
@@ -137,12 +145,12 @@ import kotlinx.coroutines.coroutineScope
                     focusedBorderColor = Color.Transparent, // Customize the focused border color here
                     unfocusedBorderColor = Color.Transparent, // Customize the unfocused border color here
                     disabledBorderColor = Color.Transparent, // Customize the disabled border color here
-                    textColor = Color.White
+                    textColor = Color.Black
                 ),
 
                 value = password,
                 onValueChange = { if (it.length <= 8) loginViewModel.onPasswordTextChanged(it) },
-                label = { Text("Password", color = Color.White) },
+                label = { Text("Password", color = Color.Black) },
                 visualTransformation = PasswordVisualTransformation(),
                 keyboardOptions = KeyboardOptions.Default.copy(imeAction = ImeAction.None)
 
@@ -199,79 +207,66 @@ import kotlinx.coroutines.coroutineScope
 
                     }
                 )
-
             }
-              /*  if (isLoading) {
-                    Box(
-                        modifier = Modifier.fillMaxSize(),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        CircularProgressIndicator()
-                    }
-                }
-*/
-            
-            Button(
-                shape = RoundedCornerShape(50),
-                onClick = {
 
-                        if (loginViewModel.login2(
-                                login,
-                                getHash(password)
-                            ) == LoginViewModel.LoginState.Success
-                        ) {
-                            navController.navigate("welcome")
-                        } else if (loginViewModel.login2(
-                                login,
-                                getHash(password)
-                            ) == LoginViewModel.LoginState.Error(errorType = LoginErrorType.Api)
-                        ) {
-                            Toast.makeText(context, "API error", Toast.LENGTH_SHORT).show()
-                        } else if (loginViewModel.login2(
-                                login,
-                                getHash(password)
-                            ) == LoginViewModel.LoginState.Error(errorType = LoginErrorType.Http)
-                        ) {
-                            Toast.makeText(
-                                context,
-                                "Incorrect email or password",
-                                Toast.LENGTH_SHORT
-                            )
-                                .show()
-                        } else if (loginViewModel.login2(
-                                login,
-                                getHash(password)
-                            ) == LoginViewModel.LoginState.Error(errorType = LoginErrorType.Connection)
-                        ) {
-                            Toast.makeText(
-                                context,
-                                "Check your internet connection",
-                                Toast.LENGTH_SHORT
-                            )
-                                .show()
-                        } else {
-                            Toast.makeText(context, "unknown error", Toast.LENGTH_SHORT).show()
+            Box {
+                if (loginInProgress) {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .background(Color.Black.copy(alpha = 0.5f))
+                            .then(Modifier.blur(4.dp))
+                    )
+                    CircularProgressIndicator(
+                        modifier = Modifier.align(Alignment.Center),
+                        color = Color.White
+                    )
+                }
+
+                Button(
+                    shape = RoundedCornerShape(50),
+                    onClick = {
+                        loginInProgress = true
+
+                        // Perform login asynchronously here
+                        // Once the login process is complete, set loginInProgress to false
+
+                        loginViewModel.login2(login, getHash(password)).let { loginState ->
+                            when (loginState) {
+                                is LoginViewModel.LoginState.Success -> navController.navigate("welcome")
+                                is LoginViewModel.LoginState.Error -> {
+                                    when (loginState.errorType) {
+                                        LoginErrorType.Api -> Toast.makeText(context, "API error", Toast.LENGTH_SHORT).show()
+                                        LoginErrorType.Http -> Toast.makeText(context, "Incorrect email or password", Toast.LENGTH_SHORT).show()
+                                        LoginErrorType.Connection -> Toast.makeText(context, "Check your internet connection", Toast.LENGTH_SHORT).show()
+                                    }
+                                }
+                                else -> {}
+                            }
                         }
 
-                    }
-                ,
-                colors = ButtonDefaults.buttonColors(backgroundColor = Color(0xff00E0F7)),
-
-                modifier = Modifier
-                    .width(300.dp)
-                    .padding(top = 50.dp)
-
-            )
-            {
-                Text(
-                    text = "Login",
-                    color = Color.Black,
-                )
+                        // Once the login process is complete, set loginInProgress to false
+                        loginInProgress = false
+                    },
+                    colors = ButtonDefaults.buttonColors(backgroundColor = Color(0xff112D4E)),
+                    modifier = Modifier
+                        .width(300.dp)
+                        .padding(top = 50.dp)
+                ) {
+                    Text(
+                        text = "Login",
+                        color = Color.White,
+                    )
+                }
             }
+
+
             Button(
-                colors = ButtonDefaults.buttonColors(backgroundColor = Color(0xff00E0F7)),
+                colors = ButtonDefaults.buttonColors(backgroundColor = Color(0xff112D4E)),
                 shape = RoundedCornerShape(50),
                 onClick = {
+                    navController.navigate(Routes.Withdrawal3.name
+                    )
                     Toast.makeText(context, "Still in development", Toast.LENGTH_SHORT).show()
                 },
                 modifier = Modifier
@@ -282,10 +277,12 @@ import kotlinx.coroutines.coroutineScope
 
                 Text(
                     text = "Sign Up",
-                    color = Color.Black,
+                    color = Color.White,
                 )
             }
         }
+
+
     }
 }
 
@@ -298,7 +295,7 @@ fun Rectangle() {
         modifier = Modifier
             .width(width = 213.dp)
             .height(height = 54.dp)
-            .background(color = Color.White.copy(alpha = 0.78f), RoundedCornerShape(8.dp))
+            .background(color = Color(0xffE5FBFE), RoundedCornerShape(8.dp))
     ){
         Image(
             painter = painterResource(id = R.drawable.s2m_logo), // Replace with your logo resource
@@ -318,15 +315,15 @@ fun KeyboardButton(
     modifier: Modifier = Modifier
 ) {
     Button(
-        border= BorderStroke(1.dp,Color.White),
-        colors=ButtonDefaults.buttonColors(backgroundColor = Color.Transparent),
+        border= BorderStroke(1.dp,Color.Black),
+        colors=ButtonDefaults.buttonColors(backgroundColor = Color(0xffE5FBFE)),
         onClick = onClick,
         shape = CircleShape, // Use CircleShape for circular buttons
         modifier = modifier
             .size(50.dp)
             .padding(4.dp)
     ) {
-        Text(text,color=Color.White)
+        Text(text,color=Color.Black)
     }
 }
 
@@ -364,14 +361,15 @@ fun CustomKeyboard1(
                     IconButton(onClick = {
                         onDeletePressed()
                     }) {
-                        Icon(Icons.Filled.Delete, contentDescription = "Delete", tint = Color.White)
+                        Icon(Icons.Filled.Delete, contentDescription = "Delete", tint = Color(0xff112D4E))
 
                     }
                     row.forEach { key ->
                         KeyboardButton(
                             text = key.toString(),
                             onClick = { onKeyPressed(key.toString(),activeTextField) },
-                           modifier = Modifier.weight(1f) // Adjust the weight for closer buttons
+                           modifier = Modifier.weight(1f),
+                            // Adjust the weight for closer buttons
                         )
 
                     }
@@ -379,7 +377,7 @@ fun CustomKeyboard1(
                     IconButton(onClick = {
                         onBackspacePressed()
                     }) {
-                        Icon(Icons.Filled.Clear, contentDescription = "Clear", tint = Color.White)
+                        Icon(Icons.Filled.Clear, contentDescription = "Clear", tint = Color(0xff112D4E))
 
                     }
                 }

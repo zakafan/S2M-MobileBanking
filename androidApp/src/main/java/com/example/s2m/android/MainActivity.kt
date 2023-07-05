@@ -1,6 +1,8 @@
 package com.example.s2m.android
 
+import android.Manifest
 import android.content.Context
+import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
 import android.util.Base64
@@ -19,11 +21,20 @@ import com.example.s2m.android.util.Routes
 import com.example.s2m.android.view.*
 import com.example.s2m.android.view.alertScreens.AlertsScreen
 import com.example.s2m.android.view.alertScreens.AlertsScreen2
+import com.example.s2m.android.view.beneficiaryScreen.AddBeneficiaryScreen
+import com.example.s2m.android.view.beneficiaryScreen.BeneficiaryScreen
+import com.example.s2m.android.view.beneficiaryScreen.RecapAddBeneficiaryScreen
 import com.example.s2m.android.view.sendMoneyScreen.SendMoneyScreen1
 import com.example.s2m.android.view.sendMoneyScreen.SendMoneyScreen2
 import com.example.s2m.android.view.sendMoneyScreen.SendMoneyScreen3
+import com.example.s2m.android.view.sendMoneyScreen.SendMoneyScreen4
+import com.example.s2m.android.view.settingsScreens.ChangePasswordPin
 import com.example.s2m.android.view.transferScreen.TransferScreen1
 import com.example.s2m.android.view.transferScreen.TransferScreen2
+import com.example.s2m.android.view.transferScreen.TransferScreen3
+import com.example.s2m.android.view.withdrawalScreen.WithdrawalScreen1
+import com.example.s2m.android.view.withdrawalScreen.WithdrawalScreen2
+import com.example.s2m.android.view.withdrawalScreen.WithdrawalScreen3
 import com.example.s2m.repository.*
 import com.example.s2m.viewmodel.*
 import java.security.InvalidKeyException
@@ -37,7 +48,7 @@ import javax.net.ssl.SSLContext
 import javax.net.ssl.TrustManager
 import javax.net.ssl.X509TrustManager
 
-class MainActivity : ComponentActivity() {
+class MainActivity : ComponentActivity(),LocationPermissionCallback {
 
     private val loginViewModel     = LoginViewModel(repository = LoginRepository())
     private val forexViewModel     = ForexViewModel(repository = ForexRepository())
@@ -46,7 +57,9 @@ class MainActivity : ComponentActivity() {
     private val transferViewModel  = TransferViewModel(repository = TransferRepository(loginViewModel))
     private val alertsViewModel    = AlertsViewModel(repository = AlertRepository(loginViewModel))
     private val logoutViewModel    = LogoutViewModel(repository = LogoutRepository(loginViewModel))
-
+    private val beneficiaryViewModel = BeneficiaryViewModel(repository = AddBeneficiaryRepository(loginViewModel))
+    private val profileViewModel    = ProfileViewModel(repository = ProfileRepository(loginViewModel))
+    private val withdrawalViewModel = WithdrawalViewModel(repository = WithdrawalRepository(loginViewModel))
 
 
     @RequiresApi(Build.VERSION_CODES.O)
@@ -61,11 +74,12 @@ class MainActivity : ComponentActivity() {
                     color = MaterialTheme.colors.background
                 ) {
                     val alert by alertsViewModel.alert.collectAsState()
+                    val locationPermissionCallback = this@MainActivity
                     val navController = rememberNavController( )
-                    SetupNavGraph(navController = navController)
+                    SetupNavGraph(navController = navController, callback = this@MainActivity)
                     NavHost(navController = navController, startDestination = Routes.Login.name ){
                         composable(route = Routes.Login.name) {
-                            LoginScreen(loginViewModel = loginViewModel, navController = navController, forexViewModel = forexViewModel)
+                            LoginScreen(loginViewModel = loginViewModel, navController = navController, forexViewModel = forexViewModel, callback =this@MainActivity)
                         }
                         composable(route = Routes.Welcome.name) {
                             WelcomeScreen(loginViewModel = loginViewModel, navController = navController, alertsViewModel, logoutViewModel = logoutViewModel)
@@ -73,11 +87,20 @@ class MainActivity : ComponentActivity() {
                         composable(route = Routes.Beneficiary.name) {
                             BeneficiaryScreen(loginViewModel = loginViewModel, navController = navController,logoutViewModel= logoutViewModel)
                         }
+                        composable(route = Routes.AddBeneficiary.name) {
+                            AddBeneficiaryScreen( navController = navController, addBeneficiaryViewModel = beneficiaryViewModel )
+                        }
+                        composable(route = Routes.ValidBenef.name) {
+                            RecapAddBeneficiaryScreen( navController = navController, beneficiaryViewModel = beneficiaryViewModel )
+                        }
                         composable(route=Routes.Transfer1.name){
                             TransferScreen1(navController = navController, loginViewModel = loginViewModel, transferViewModel = transferViewModel, logoutViewModel = logoutViewModel)
                         }
                         composable(route=Routes.Transfer2.name){
                             TransferScreen2(navController = navController ,transferViewModel = transferViewModel,loginViewModel = loginViewModel, logoutViewModel = logoutViewModel)
+                        }
+                        composable(route=Routes.Transfer3.name){
+                            TransferScreen3(navController = navController ,transferViewModel = transferViewModel,loginViewModel = loginViewModel, logoutViewModel = logoutViewModel)
                         }
                         composable(route=Routes.Forex.name){
                             ForexScreen(navController = navController, forexViewModel = forexViewModel)
@@ -96,6 +119,10 @@ class MainActivity : ComponentActivity() {
                             SendMoneyScreen3(navController = navController, loginViewModel = loginViewModel, sendMoneyViewModel = sendMoneyViewModel,
                                 logoutViewModel= logoutViewModel)
                         }
+                        composable(route= Routes.Send4.name){
+                            SendMoneyScreen4(navController = navController, loginViewModel = loginViewModel, sendMoneyViewModel = sendMoneyViewModel,
+                                logoutViewModel= logoutViewModel)
+                        }
                         composable(route= Routes.Alerts.name){
                             AlertsScreen(navController = navController, loginViewModel = loginViewModel, alertsViewModel = alertsViewModel, logoutViewModel = logoutViewModel)
                         }
@@ -106,14 +133,59 @@ class MainActivity : ComponentActivity() {
                             HistoryTransactionsScreen(navController = navController, loginViewModel = loginViewModel, logoutViewModel = logoutViewModel)
                         }
                         composable(route= Routes.Locations.name){
-                            LocationsScreen(navController = navController)
+                            LocationsScreen(navController = navController )
+                        }
+                        composable(route= Routes.Profile.name){
+                            ProfileScreen(navController = navController, profileViewModel = profileViewModel ,loginViewModel= loginViewModel)
+                        }
+                        composable(route= Routes.ChangePassword.name){
+                            ChangePasswordPin(navController = navController, profileViewModel = profileViewModel )
+                        }
+                        composable(route= Routes.Withdrawal1.name){
+                            WithdrawalScreen1(navController = navController, withdrawalViewModel = withdrawalViewModel, loginViewModel = loginViewModel  )
+                        }
+                        composable(route= Routes.Withdrawal2.name){
+                            WithdrawalScreen2(navController = navController, withdrawalViewModel = withdrawalViewModel, loginViewModel = loginViewModel  )
+                        }
+                        composable(route= Routes.Withdrawal3.name){
+                            WithdrawalScreen3(navController = navController, withdrawalViewModel = withdrawalViewModel, loginViewModel = loginViewModel  )
                         }
 
                     }
                 }
             }
         }
+        requestLocationPermissions()
     }
+
+    private val locationPermissionRequestCode = 100
+
+    override  fun requestLocationPermissions() {
+        val permissions = arrayOf(
+            Manifest.permission.ACCESS_FINE_LOCATION,
+            Manifest.permission.ACCESS_COARSE_LOCATION
+        )
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            requestPermissions(permissions, locationPermissionRequestCode)
+        }
+    }
+
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<String>,
+        grantResults: IntArray
+    ) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        if (requestCode == locationPermissionRequestCode) {
+            if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                // Location permissions granted. You can proceed with map-related functionality.
+            } else {
+                // Location permissions denied. Handle accordingly.
+            }
+        }
+    }
+
 
     @Deprecated("Deprecated in Java")
     override fun onBackPressed() {
@@ -165,6 +237,11 @@ fun getHash(data: String): String {
 fun getAppContext(context: Context): Context {
     return context.applicationContext
 }
+
+interface LocationPermissionCallback {
+    fun requestLocationPermissions()
+}
+
 
 
 

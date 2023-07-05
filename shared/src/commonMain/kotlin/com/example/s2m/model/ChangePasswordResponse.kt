@@ -4,11 +4,9 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class SendMoneyResponse (
+data class ChangePasswordResponse(
     @SerialName("responseCode")
-    val responseCode:String,
+    var responseCode:String,
     @SerialName("responseDescription")
-    val responseDescription:String,
-    @SerialName("expiryDate")
-    val expiryDate:String?=null
-        )
+    var  responseDescription:String
+)

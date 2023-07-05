@@ -10,6 +10,7 @@ import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.runtime.*
@@ -23,6 +24,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -30,9 +32,7 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.s2m.android.getHash
-import com.example.s2m.android.util.BottomNav
-import com.example.s2m.android.util.DrawerContent
-import com.example.s2m.android.util.Routes
+import com.example.s2m.android.util.*
 import com.example.s2m.android.view.AutoSlidingCarousel
 import com.example.s2m.android.view.WalletCard
 import com.example.s2m.model.User
@@ -55,83 +55,41 @@ fun SendMoneyScreen2(
 ){
 
     val user: User by loginViewModel.user.collectAsState()
-    val scaffoldState = rememberScaffoldState()
-    val coroutineScope = rememberCoroutineScope()
+
     var secretCode by remember{ mutableStateOf("") }
     var confirmSecretCode by remember{ mutableStateOf("") }
+    var showDialog by remember { mutableStateOf(false) }
+    var showDialog1 by remember { mutableStateOf(false) }
     val context = LocalContext.current
 
     Scaffold(
 
-        backgroundColor = Color.LightGray,
+        backgroundColor = Color(backgroundColor),
         topBar = {
-            Surface(
+            TopAppBar(
+                backgroundColor = Color(0xff112D4E),
+                title = {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        IconButton(
+                            onClick = {navController.popBackStack()
 
-                modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(bottomStart = 16.dp, bottomEnd = 16.dp)
-            ) {
-                TopAppBar(
-                    backgroundColor = Color.Black,
-                    modifier = Modifier.height(150.dp),
-                    title = {
-                        user.responseLogin?.let {
+                            },
 
-                            Box(modifier = Modifier.fillMaxSize()) {
-                                Column(
-                                    modifier = Modifier.align(Alignment.TopCenter)
-                                ) {
-                                    Row(
-                                        modifier = Modifier.padding(bottom = 55.dp),
-                                        verticalAlignment = Alignment.CenterVertically
-                                    ) {
-                                        IconButton(
-                                            onClick = {
-                                                coroutineScope.launch {
-                                                    scaffoldState.drawerState.open()
-                                                }
-                                            },
-                                            modifier = Modifier.padding(bottom = 50.dp)
-                                        ) {
-                                            Icon(
-                                                Icons.Filled.Menu,
-                                                contentDescription = "Menu",
-                                                tint = Color(0xff00E0F7),
-                                                modifier = Modifier.padding(end = 25.dp)
-                                            )
-                                        }
+                            ) {
+                            Icon(
+                                Icons.Filled.ArrowBack,
+                                contentDescription = "Menu",
+                                tint = Color.White,
+                            ) }
 
-                                        Text(
-                                            text = "Transfer", modifier = Modifier
-                                                .weight(1f)
-                                                .padding(bottom = 50.dp),
-                                            color= Color.White
-                                        )
-
-                                        IconButton(
-                                            onClick = { /*TODO*/ },
-                                            modifier = Modifier.padding(bottom = 50.dp)
-                                        ) {
-                                            Icon(
-                                                Icons.Filled.Notifications,
-                                                contentDescription = "notification",
-                                                tint = Color(0xff00E0F7)
-                                            )
-                                        }
-                                    }
-                                }
-
-                                Row(
-                                    modifier = Modifier.fillMaxWidth(),
-                                    horizontalArrangement = Arrangement.Center,
-                                    verticalAlignment = Alignment.CenterVertically
-                                ) {
-                                    Text(text = "Balance: ${it.equipmentList[0].balance} MAD", color = Color.White,modifier= Modifier.padding(top=80.dp,end=70.dp), fontSize = 25.sp, fontStyle = FontStyle.Italic)
-                                }
-                            }
-                        }
-                    }
-                )
-            }
+                        Text(
+                            text = "Money Send", modifier = Modifier
+                                .weight(1f),
+                            color=Color.White
+                        ) }
+                })
         },
 
         drawerContent = {
@@ -159,11 +117,7 @@ fun SendMoneyScreen2(
             }
             user.responseLogin?.let {
                 val wallets = it.equipmentList
-                Card(
-                    modifier = Modifier.padding(1.dp),
-                    shape = RoundedCornerShape(18.dp),
 
-                    ) {
                     AutoSlidingCarousel(
                         itemsCount = wallets.size,
                         itemContent = { index ->
@@ -174,11 +128,9 @@ fun SendMoneyScreen2(
                                 modifier = Modifier
                                     .padding(30.dp)
                                     .fillMaxSize()
-
                             )
                         }
                     )
-                }
             }
             Spacer(modifier = Modifier.height(5.dp))
             Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
@@ -193,7 +145,8 @@ fun SendMoneyScreen2(
                 modifier = Modifier
                     .width(500.dp)
                     .height(150.dp)
-                    .background(color = Color.Black, shape = RoundedCornerShape(20.dp)),
+                    .background(color = Color(0xffAFD3E2), shape = RoundedCornerShape(20.dp))
+                    .border(border = BorderStroke(width=2.dp, color=Color(0xffAFD3E2)), shape = RoundedCornerShape(20.dp)),
                 contentAlignment = Alignment.Center,
             ) {
                 Column(
@@ -206,19 +159,19 @@ fun SendMoneyScreen2(
                         modifier = Modifier
                             .size(50.dp)
                             .clip(CircleShape),
-                        colorFilter = ColorFilter.tint(Color(0xff00E0F7))
+                        colorFilter = ColorFilter.tint(Color(0xff1D267D))
                     )
                     Text(
                         text = sendMoneyViewModel.beneficiaryName.value,
                         fontSize = 24.sp,
                         fontWeight = FontWeight.Bold,
-                        color = Color.White,
+                        color = Color.Black,
                         modifier = Modifier.padding(top = 8.dp)
                     )
                     Text(
-                        text = sendMoneyViewModel.toPhone.value,
+                        text = "+212${sendMoneyViewModel.toPhone.value}",
                         fontSize = 16.sp,
-                        color = Color.White,
+                        color = Color.Black,
                         modifier = Modifier.padding(top = 4.dp)
                     )
                 }
@@ -227,7 +180,7 @@ fun SendMoneyScreen2(
             Card(
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(20.dp),
-                backgroundColor = Color.LightGray,
+                backgroundColor = Color(0xffAFD3E2),
                 elevation = 4.dp
             ) {
                 Column(modifier = Modifier.padding(16.dp)) {
@@ -255,7 +208,7 @@ fun SendMoneyScreen2(
                     }
                 },
                 keyboardOptions = KeyboardOptions(
-                    keyboardType = KeyboardType.NumberPassword
+                    keyboardType = KeyboardType.NumberPassword, imeAction = ImeAction.Next
                 ),
                 decorationBox = {
                     Row(horizontalArrangement = Arrangement.Center){
@@ -271,7 +224,7 @@ fun SendMoneyScreen2(
                                     .border(
                                         if (isFocused) 4.dp
                                         else 3.dp,
-                                        if (isFocused) Color(0xff00E0F7)
+                                        if (isFocused) Color(0xffAFD3E2)
                                         else Color.Black,
                                         RoundedCornerShape(8.dp)
                                     )
@@ -300,30 +253,30 @@ fun SendMoneyScreen2(
             Spacer(modifier = Modifier.height(16.dp))
 
             BasicTextField(
-                value =secretCode,
+                value =confirmSecretCode,
                 onValueChange ={
                     if(it.length<=4){
-                        secretCode=it
+                        confirmSecretCode=it
                     }
                 },
                 keyboardOptions = KeyboardOptions(
-                    keyboardType = KeyboardType.NumberPassword
+                    keyboardType = KeyboardType.NumberPassword, imeAction = ImeAction.Done
                 ),
                 decorationBox = {
                     Row(horizontalArrangement = Arrangement.Center){
                         repeat(4){index->
                             val char=when{
-                                index >=secretCode.length ->""
-                                else ->secretCode[index].toString()
+                                index >=confirmSecretCode.length ->""
+                                else ->confirmSecretCode[index].toString()
                             }
-                            val isFocused=secretCode.length==index
+                            val isFocused=confirmSecretCode.length==index
                             Text(
                                 modifier = Modifier
                                     .width(40.dp)
                                     .border(
                                         if (isFocused) 4.dp
                                         else 3.dp,
-                                        if (isFocused) Color(0xff00E0F7)
+                                        if (isFocused) Color(0xffAFD3E2)
                                         else Color.Black,
                                         RoundedCornerShape(8.dp)
                                     )
@@ -347,31 +300,18 @@ fun SendMoneyScreen2(
                 contentAlignment = Alignment.TopCenter,
             ){
                 Button(
-                    colors = ButtonDefaults.buttonColors(backgroundColor = Color(0xff00E0F7)),
+                    colors = ButtonDefaults.buttonColors(backgroundColor = Color(topBarColor)),
                     shape = RoundedCornerShape(50),
                     onClick = {
+                        if(secretCode =="" || confirmSecretCode == ""){
+                            showDialog = true
+                        }else if(secretCode != confirmSecretCode ){
+                            showDialog1 = true
+                        }else{
                         sendMoneyViewModel.onSecretCodeChanged(secretCode)
                         navController.navigate(Routes.Send3.name)
-                       /* if(sendMoneyViewModel.transfer(transferViewModel.amount.value,transferViewModel.memo.value,transferViewModel.toPhone.value,
-                                getHash(transferViewModel.pin.value)
-                            )== TransferViewModel.TransferState.Success){
-                            Toast.makeText(context,"Transfer successful", Toast.LENGTH_SHORT).show()
-                            transferViewModel.clearState()
-                        }else if(transferViewModel.transfer(transferViewModel.amount.value,transferViewModel.memo.value,transferViewModel.toPhone.value,
-                                getHash(transferViewModel.pin.value)
-                            )== TransferViewModel.TransferState.Error(TransferErrorType.MinAmount)){
-                            Toast.makeText(context,"The amount is low. Please enter another amount",
-                                Toast.LENGTH_SHORT).show()
-                        }else if(transferViewModel.transfer(transferViewModel.amount.value,transferViewModel.memo.value,transferViewModel.toPhone.value,
-                                getHash(transferViewModel.pin.value)
-                            )== TransferViewModel.TransferState.Error(TransferErrorType.PIN)){
-                            Toast.makeText(context,"Invalid PIN !!!", Toast.LENGTH_SHORT).show()
-                        }else if (transferViewModel.transfer(transferViewModel.amount.value,transferViewModel.memo.value,transferViewModel.toPhone.value,
-                                getHash(transferViewModel.pin.value)
-                            )== TransferViewModel.TransferState.Error(TransferErrorType.MaxTransactions)){
-                            Toast.makeText(context,"the number of maximum transactions is reached !!",
-                                Toast.LENGTH_SHORT).show()
-                        }*/
+                            println(sendMoneyViewModel.secretCode.value)
+                    }
 
 
                     },
@@ -384,6 +324,75 @@ fun SendMoneyScreen2(
                         color = Color.White,
                     )
                 }
+            }
+            if(showDialog){
+                AlertDialog(
+                    modifier = Modifier.height(150.dp).width(300.dp),
+
+                    backgroundColor = Color(backgroundColor),
+                    onDismissRequest = { showDialog = false },
+                    title = {
+                        Text(text = "Fill the necessary fields",modifier=Modifier.padding(start=40.dp,top=20.dp),
+                            fontWeight = FontWeight.Bold)
+                    },
+                    buttons = {
+                        Column {
+                            Button(
+                                colors = ButtonDefaults.buttonColors(backgroundColor = Color(
+                                    topBarColor)),
+                                shape = RoundedCornerShape(50),
+                                onClick = {
+                                    showDialog = false
+                                },
+                                modifier = Modifier
+                                    .padding(start=50.dp,top=60.dp).width(200.dp)
+
+
+                            ) {
+
+                                Text(
+                                    text = "OK",
+                                    color = Color.White,
+                                )
+                            }
+                        }
+                    }
+                )
+            }
+
+            if(showDialog1){
+                AlertDialog(
+                    modifier = Modifier.height(150.dp).width(300.dp),
+                    backgroundColor = Color(backgroundColor),
+
+                    onDismissRequest = { showDialog1 = false },
+                    title = {
+                        Text(text = "Secret code does not match",modifier=Modifier.padding(start=40.dp,top=20.dp),
+                            fontWeight = FontWeight.Bold)
+                    },
+                    buttons = {
+                        Column {
+                            Button(
+                                colors = ButtonDefaults.buttonColors(backgroundColor = Color(
+                                    topBarColor)),
+                                shape = RoundedCornerShape(50),
+                                onClick = {
+                                    showDialog1 = false
+                                },
+                                modifier = Modifier
+                                    .padding(start=50.dp,top=60.dp).width(200.dp)
+
+
+                            ) {
+
+                                Text(
+                                    text = "OK",
+                                    color = Color.White,
+                                )
+                            }
+                        }
+                    }
+                )
             }
 
 

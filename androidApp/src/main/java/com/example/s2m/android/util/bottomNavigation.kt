@@ -19,6 +19,8 @@ import com.example.s2m.android.R
 import com.example.s2m.viewmodel.ForexViewModel
 import kotlinx.coroutines.delay
 
+
+
 @Composable
 fun BottomNav(navController: NavController,currentScreen:String){
     val bottomBarShape = RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp)
@@ -30,34 +32,34 @@ fun BottomNav(navController: NavController,currentScreen:String){
             ){
             BottomNavigationItem(
                 selected = currentScreen=="welcome" ,
-                onClick = { navController.navigate("welcome") },
-                icon = { Icon(Icons.Filled.Home, contentDescription = "Home", tint = Color(0xff00E0F7)) },
+                onClick = { navController.navigate(Routes.Welcome.name) },
+                icon = { Icon(Icons.Filled.Home, contentDescription = "Home", tint = Color(0xff112D4E)) },
                 label = { Text("Home", color =Color.Black ) }
             )
             BottomNavigationItem(
                 selected = currentScreen == "alerts",
-                onClick = { /* Handle navigation */ },
-                icon = { Icon(Icons.Filled.Notifications, contentDescription = "Alerts", tint = Color(0xff00E0F7)) },
+                onClick = {  },
+                icon = { Icon(Icons.Filled.Notifications, contentDescription = "Alerts", tint = Color(0xff112D4E)) },
                 label = { Text("Alerts", color =Color.Black) }
             )
             BottomNavigationItem(
                 selected = currentScreen == "beneficiary",
-                onClick = { navController.navigate("beneficiary") },
-                icon = { Icon(Icons.Filled.Person, contentDescription = "Beneficiary", tint = Color(0xff00E0F7)) },
+                onClick = { navController.navigate(Routes.Beneficiary.name) },
+                icon = { Icon(Icons.Filled.Person, contentDescription = "Beneficiary", tint = Color(0xff112D4E)) },
                 label = { Text("Beneficiary", color =Color.Black) }
             )
             BottomNavigationItem(
                 selected = currentScreen == "activity",
-                onClick = {  },
-                icon = { Icon(Icons.Filled.Settings, contentDescription = "Activity", tint = Color(0xff00E0F7)) },
-                label = { Text("Activity", color =Color.Black) }
+                onClick = { navController.navigate(Routes.Profile.name) },
+                icon = { Icon(Icons.Filled.Settings, contentDescription = "Profile", tint = Color(0xff112D4E)) },
+                label = { Text("Profile", color =Color.Black) }
             )
         }
     }
     }
 
 @Composable
-fun BottomNavLogin(navController: NavController,currentScreen:String,forexViewModel: ForexViewModel = viewModel()){
+fun BottomNavLogin(navController: NavController,currentScreen:String,forexViewModel: ForexViewModel = viewModel(),perm:()->Unit){
     val bottomBarShape = RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp)
     Surface(shape = bottomBarShape) {
         BottomNavigation (
@@ -68,13 +70,16 @@ fun BottomNavLogin(navController: NavController,currentScreen:String,forexViewMo
             BottomNavigationItem(
                 selected = currentScreen=="" ,
                 onClick = { navController.navigate(Routes.Contact.name) },
-                icon = { Icon(Icons.Filled.Email, contentDescription = "Contact", tint = Color(0xFF37C8C3)) },
+                icon = { Icon(Icons.Filled.Email, contentDescription = "Contact", tint = Color(0xff112D4E)) },
                 label = { Text("Contact", color =Color.Black ) }
             )
             BottomNavigationItem(
                 selected = currentScreen == "",
-                onClick = { navController.navigate(Routes.Locations.name) },
-                icon = { Icon(Icons.Filled.LocationOn, contentDescription = "Locations", tint = Color(0xFF37C8C3)) },
+                onClick = {
+                  //  perm
+                   // navController.navigate(Routes.Locations.name)
+                          },
+                icon = { Icon(Icons.Filled.LocationOn, contentDescription = "Locations", tint = Color(0xff112D4E)) },
                 label = { Text("Location", color =Color.Black) }
             )
             BottomNavigationItem(
@@ -82,7 +87,7 @@ fun BottomNavLogin(navController: NavController,currentScreen:String,forexViewMo
                 onClick = { forexViewModel.getForexRate()
                             navController.navigate(Routes.Forex.name)
                           },
-                icon = { Icon(painter = painterResource(R.drawable.forex), contentDescription = "Forex", tint = Color(0xFF37C8C3), modifier = Modifier.size(30.dp)) },
+                icon = { Icon(painter = painterResource(R.drawable.forex), contentDescription = "Forex", tint = Color(0xff112D4E), modifier = Modifier.size(30.dp)) },
                 label = { Text("Forex", color =Color.Black) }
             )
 

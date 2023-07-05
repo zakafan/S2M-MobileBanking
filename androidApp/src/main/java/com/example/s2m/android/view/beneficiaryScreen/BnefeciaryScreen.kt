@@ -1,4 +1,4 @@
-package com.example.s2m.android.view
+package com.example.s2m.android.view.beneficiaryScreen
 
 import android.annotation.SuppressLint
 import androidx.compose.foundation.background
@@ -23,8 +23,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
-import com.example.s2m.android.util.BottomNav
-import com.example.s2m.android.util.DrawerContent
+import com.example.s2m.android.util.*
 import com.example.s2m.model.User
 import com.example.s2m.viewmodel.LoginViewModel
 import com.example.s2m.viewmodel.LogoutViewModel
@@ -48,82 +47,39 @@ fun BeneficiaryScreen(
 
     Scaffold(
 
-        backgroundColor = Color.LightGray,
+        backgroundColor = Color(backgroundColor),
         topBar = {
-            Surface(
+            TopAppBar(
+                backgroundColor = Color(0xff112D4E),
+                title = {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        IconButton(
+                            onClick = {navController.popBackStack()
 
-                modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(bottomStart = 16.dp, bottomEnd = 16.dp)
-            ) {
-                TopAppBar(
-                    backgroundColor = Color.Black,
-                    modifier = Modifier.height(150.dp),
-                    title = {
-                        user.responseLogin?.let {
+                            },
 
-                            Box(modifier = Modifier.fillMaxSize()) {
-                                Column(
-                                    modifier = Modifier.align(Alignment.TopCenter)
-                                ) {
-                                    Row(
-                                        modifier = Modifier.padding(bottom = 55.dp),
-                                        verticalAlignment = Alignment.CenterVertically
-                                    ) {
-                                        IconButton(
-                                            onClick = {
-                                                coroutineScope.launch {
-                                                    scaffoldState.drawerState.open()
-                                                }
-                                            },
-                                            modifier = Modifier.padding(bottom = 50.dp)
-                                        ) {
-                                            Icon(
-                                                Icons.Filled.Menu,
-                                                contentDescription = "Menu",
-                                                tint = Color(0xff00E0F7),
-                                                modifier = Modifier.padding(end = 25.dp)
-                                            )
-                                        }
+                            ) {
+                            Icon(
+                                Icons.Filled.ArrowBack,
+                                contentDescription = "Back",
+                                tint = Color.White,
+                            ) }
 
-                                        Text(
-                                            text = "Beneficiary List", modifier = Modifier
-                                                .weight(1f)
-                                                .padding(bottom = 50.dp),
-                                            color=Color.White
-                                        )
-
-                                        IconButton(
-                                            onClick = { /*TODO*/ },
-                                            modifier = Modifier.padding(bottom = 50.dp)
-                                        ) {
-                                            Icon(
-                                                Icons.Filled.Notifications,
-                                                contentDescription = "notification",
-                                                tint = Color(0xff00E0F7)
-                                            )
-                                        }
-                                    }
-                                }
-
-                                Row(
-                                    modifier = Modifier.fillMaxWidth(),
-                                    horizontalArrangement = Arrangement.Center,
-                                    verticalAlignment = Alignment.CenterVertically
-                                ) {
-                                    Text(text = "Balance: ${it.equipmentList[0].balance} MAD", color = Color.White,modifier=Modifier.padding(top=80.dp,end=70.dp), fontSize = 25.sp, fontStyle = FontStyle.Italic)
-                                }
-                            }
-                        }
-                    }
-                )
-            }
+                        Text(
+                            text = "Beneficiaries List", modifier = Modifier
+                                .weight(1f),
+                            color=Color.White
+                        ) }
+                })
         },
         floatingActionButton = {
             FloatingActionButton(
-                onClick = {},
-                backgroundColor = Color.Black,
+                onClick = {navController.navigate(Routes.AddBeneficiary.name)},
+                backgroundColor = Color(topBarColor),
                 content = {
-                    Icon(Icons.Filled.Add, contentDescription = "Add Beneficiary", tint = Color(0xff00E0F7))
+                    Icon(Icons.Filled.Add, contentDescription = "Add Beneficiary", tint = Color.White)
                 }
             )
         },

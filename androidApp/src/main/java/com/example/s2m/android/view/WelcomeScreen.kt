@@ -31,10 +31,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
-import com.example.s2m.android.util.BottomNav
-import com.example.s2m.android.util.DrawerContent
 import com.example.s2m.android.R
-import com.example.s2m.android.util.Routes
+import com.example.s2m.android.util.*
 import com.example.s2m.model.User
 import com.example.s2m.viewmodel.AlertsViewModel
 import com.example.s2m.viewmodel.LoginViewModel
@@ -47,7 +45,7 @@ import kotlinx.coroutines.launch
 
 
 @OptIn(ExperimentalPagerApi::class)
-@SuppressLint("UnusedMaterialScaffoldPaddingParameter")
+@SuppressLint("UnusedMaterialScaffoldPaddingParameter", "SuspiciousIndentation")
 @Composable
 fun WelcomeScreen(
     loginViewModel: LoginViewModel = viewModel(),
@@ -81,7 +79,7 @@ fun WelcomeScreen(
     Scaffold(
 
         scaffoldState = scaffoldState,
-        backgroundColor = Color(0xffE5FBFE),
+        backgroundColor = Color(backgroundColor),
         topBar = {
             Surface(
 
@@ -89,7 +87,7 @@ fun WelcomeScreen(
                 shape = RoundedCornerShape(bottomStart = 16.dp, bottomEnd = 16.dp)
             ) {
                 TopAppBar(
-                    backgroundColor = Color.Black,
+                    backgroundColor = Color(topBarColor),
                     modifier = Modifier.height(150.dp),
                     title = {
                         user.responseLogin?.let {
@@ -113,7 +111,7 @@ fun WelcomeScreen(
                                             Icon(
                                                 Icons.Filled.Menu,
                                                 contentDescription = "Menu",
-                                                tint = Color(0xff00E0F7),
+                                                tint = Color.White,
                                                 modifier = Modifier.padding(end = 25.dp)
                                             )
                                         }
@@ -123,26 +121,36 @@ fun WelcomeScreen(
                                                 .weight(1f)
                                                 .padding(bottom = 50.dp),
                                             color=Color.White
+
                                         )
 
-                                        BadgedBox(
-                                            badge = { Badge { Text(unreadNotificationCount.toString()) } },
-                                            modifier = Modifier.padding(end = 22.dp,top=10.dp)
+                                        Box(
+                                            modifier = Modifier.padding(end = 1.dp, top = 12.dp)
                                         ) {
                                             IconButton(
                                                 onClick = {
                                                     alertsViewModel.getAlert()
                                                     navController.navigate(Routes.Alerts.name)
                                                 },
-                                                modifier = Modifier.padding(bottom = 50.dp)
+                                                modifier = Modifier.padding(bottom = 60.dp)
                                             ) {
                                                 Icon(
                                                     Icons.Filled.Notifications,
                                                     contentDescription = "notification",
-                                                    tint = Color(0xff00E0F7)
+                                                    tint = Color.White
                                                 )
                                             }
+
+                                            BadgedBox(
+                                                badge = {
+                                                    val displayedCount = if (unreadNotificationCount > 99) "+99" else unreadNotificationCount.toString()
+                                                    Badge { Text(displayedCount) }
+                                                }
+                                            ) {
+                                                // This is an empty composable that acts as a placeholder for the badge
+                                            }
                                         }
+
 
                                     }
                                 }
@@ -200,12 +208,7 @@ fun WelcomeScreen(
             CardData(balance = 547.0, currency = "USD", cardNumber = "**** **** **** 1234")
             )
 
-        Card(
-            modifier = Modifier.padding(16.dp),
-            shape = RoundedCornerShape(18.dp),
-            backgroundColor = Color(0xffE5FBFE)
 
-            ) {
             AutoSlidingCarousel(
                 itemsCount = cards.size,
                 itemContent = { index ->
@@ -220,7 +223,7 @@ fun WelcomeScreen(
                     )
                 }
             )
-        }
+
 
 
 
@@ -274,15 +277,13 @@ fun WelcomeScreen(
                 ) {
                     Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(16.dp)) {
                         CustomButton1(onClick = { navController.navigate(Routes.Transfer1.name)},text="Transfer",icon=R.drawable.transfer_money)
-                        CustomButton1(onClick = { navController.navigate(Routes.Send1.name) },text="Send Money",icon=R.drawable.send_money)
-                        CustomButton1(onClick = { },text="Cash Out",icon=R.drawable.withdraw)
-
-                        
+                        CustomButton1(onClick = { navController.navigate(Routes.Send1.name) },text="Money Send",icon=R.drawable.send_money)
+                        CustomButton1(onClick = {navController.navigate(Routes.Withdrawal1.name) },text="Cash Out",icon=R.drawable.withdraw)
                     }
                     Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(16.dp)) {
                         CustomButton1(onClick = { navController.navigate(Routes.History.name) },text=" History",icon=R.drawable.time_management)
                         CustomButton1(onClick = { },text="Wallet details",icon=R.drawable.card)
-                        CustomButton1(onClick = { },text="Pay Bills",icon=R.drawable.payment)
+                        CustomButton1(onClick = { },text="Pay Merchant",icon=R.drawable.payment)
 
                     }
                 }
@@ -296,11 +297,12 @@ fun WelcomeScreen(
 @Composable
 fun WalletCard(balance: Double, currency: String, cardNumber: String,modifier:Modifier) {
     Card(
-        backgroundColor = Color(0xff00E0F7),
+        backgroundColor = Color(0xff3F72AF),
         shape = RoundedCornerShape(16.dp),
         modifier = Modifier
             .padding(25.dp)
-            .width(340.dp)
+            .width(340.dp),
+        elevation = 30.dp
     ) {
         Column(
             modifier = Modifier
@@ -309,12 +311,15 @@ fun WalletCard(balance: Double, currency: String, cardNumber: String,modifier:Mo
         ) {
             Text(
                 text = "Wallet Balance",
-                style = MaterialTheme.typography.caption
+                style = MaterialTheme.typography.caption,
+                color = Color.White
             )
             Text(
                 text =   balance.toString() + "MAD",
                 style = MaterialTheme.typography.h4,
                 modifier = Modifier.padding(top = 8.dp, bottom = 16.dp)
+                ,
+                color = Color.White
             )
             Row(
                 horizontalArrangement = Arrangement.SpaceBetween,
@@ -323,23 +328,26 @@ fun WalletCard(balance: Double, currency: String, cardNumber: String,modifier:Mo
                 Column {
                     Text(
                         text = "Currency",
-                        style = MaterialTheme.typography.caption
-                    )
+                        style = MaterialTheme.typography.caption,
+                        color = Color.White                    )
                     Text(
                         text = currency,
                         style = MaterialTheme.typography.subtitle1,
-                        modifier = Modifier.padding(top = 4.dp)
+                        modifier = Modifier.padding(top = 4.dp),
+                        color = Color.White
                     )
                 }
                 Column {
                     Text(
-                        text = "Card Number",
-                        style = MaterialTheme.typography.caption
+                        text = "Wallet Number",
+                        style = MaterialTheme.typography.caption,
+                        color = Color.White
                     )
                     Text(
                         text = cardNumber,
                         style = MaterialTheme.typography.subtitle1,
-                        modifier = Modifier.padding(top = 4.dp)
+                        modifier = Modifier.padding(top = 4.dp),
+                        color = Color.White
                     )
                 }
             }
@@ -377,10 +385,12 @@ fun AutoSlidingCarousel(
 
     Box(modifier = modifier
         .fillMaxWidth()
-        .background(color = Color.Black),
+        .background(color = Color(backgroundColor).copy(alpha = if (isDragged) 0f else 0f))
+
     ) {
         HorizontalPager(count = itemsCount, state = pagerState) { page ->
             itemContent(page)
+
         }
 
         Surface(
@@ -388,7 +398,7 @@ fun AutoSlidingCarousel(
                 .padding(bottom = 8.dp)
                 .align(Alignment.BottomCenter),
             shape = CircleShape,
-            color = Color.Black.copy(alpha = 0.5f)
+            color = Color(0xff3F72AF)
         ) {
             DotsIndicator(
                 modifier = Modifier.padding(horizontal = 8.dp, vertical = 2.dp),
@@ -458,7 +468,8 @@ fun UserInfoDrawer(
             text = user.responseLogin?.lastName ?: "",
             fontSize = 20.sp,
             fontWeight = FontWeight.Bold,
-            textAlign = TextAlign.Center
+            textAlign = TextAlign.Center,
+            color = Color.White
         )
 
         Spacer(modifier = Modifier.height(8.dp))
@@ -468,50 +479,13 @@ fun UserInfoDrawer(
             text = user.responseLogin?.phone ?: "",
             fontSize = 16.sp,
             fontWeight = FontWeight.Normal,
-            textAlign = TextAlign.Center
+            textAlign = TextAlign.Center,
+            color = Color.White
         )
     }
 }
 
-@Composable
-fun CustomButton2(
-    modifier: Modifier = Modifier,
-    onClick: () -> Unit,
-    text: String,
-    icon: Int
-) {
-    Column(
-        modifier = modifier
-            .width(72.dp)
-            .height(100.dp),
-        
-    ) {
-        Button(
-            shape = RoundedCornerShape(20),
-            onClick = onClick,
-            colors = ButtonDefaults.buttonColors(backgroundColor = Color.Black),
-            modifier = modifier
-                .width(80.dp)
-                .height(75.dp)
-        ) {
-            Icon(
-                painter = painterResource(id = icon),
-                contentDescription = "Icon/Wallet",
-                tint = Color(0xff00e0f7)
-            )
-        }
-        Box(modifier = Modifier.height(500.dp)){
-        Text(
-            modifier=Modifier.height(500.dp),
-            text = text,
-            textAlign = TextAlign.Justify,
-            style = MaterialTheme.typography.body2,
-            color=Color.Black,
-            
-        
-        )}
-    }
-}
+
 
 @Composable
 fun CustomButton1(
@@ -528,7 +502,7 @@ fun CustomButton1(
         Button(
             shape = RoundedCornerShape(20),
             onClick = onClick,
-            colors = ButtonDefaults.buttonColors(backgroundColor = Color.Black),
+            colors = ButtonDefaults.buttonColors(backgroundColor = Color(0xff112D4E)),
             modifier = modifier
                 .width(80.dp)
                 .height(75.dp)
@@ -536,7 +510,7 @@ fun CustomButton1(
             Icon(
                 painter = painterResource(id = icon),
                 contentDescription = "Icon/Wallet",
-                tint = Color(0xff00e0f7)
+                tint = Color.White
             )
         }
         Box(

@@ -10,6 +10,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.runtime.*
@@ -19,13 +20,13 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
-import com.example.s2m.android.util.BottomNav
-import com.example.s2m.android.util.DrawerContent
+import com.example.s2m.android.util.*
 import com.example.s2m.android.view.*
 import com.example.s2m.model.User
 import com.example.s2m.viewmodel.LoginViewModel
@@ -63,75 +64,32 @@ fun TransferScreen1(
 
     Scaffold(
 
-        backgroundColor = Color.LightGray,
+        backgroundColor = Color(backgroundColor),
         topBar = {
-            Surface(
+            TopAppBar(
+                backgroundColor = Color(0xff112D4E),
+                title = {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        IconButton(
+                            onClick = {navController.popBackStack()
 
-                modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(bottomStart = 16.dp, bottomEnd = 16.dp)
-            ) {
-                TopAppBar(
-                    backgroundColor = Color.Black,
-                    modifier = Modifier.height(150.dp),
-                    title = {
-                        user.responseLogin?.let {
+                            },
 
-                            Box(modifier = Modifier.fillMaxSize()) {
-                                Column(
-                                    modifier = Modifier.align(Alignment.TopCenter)
-                                ) {
-                                    Row(
-                                        modifier = Modifier.padding(bottom = 55.dp),
-                                        verticalAlignment = Alignment.CenterVertically
-                                    ) {
-                                        IconButton(
-                                            onClick = {
-                                                coroutineScope.launch {
-                                                    scaffoldState.drawerState.open()
-                                                }
-                                            },
-                                            modifier = Modifier.padding(bottom = 50.dp)
-                                        ) {
-                                            Icon(
-                                                Icons.Filled.Menu,
-                                                contentDescription = "Menu",
-                                                tint = Color(0xff00E0F7),
-                                                modifier = Modifier.padding(end = 25.dp)
-                                            )
-                                        }
+                            ) {
+                            Icon(
+                                Icons.Filled.ArrowBack,
+                                contentDescription = "Menu",
+                                tint = Color.White,
+                            ) }
 
-                                        Text(
-                                            text = "Transfer", modifier = Modifier
-                                                .weight(1f)
-                                                .padding(bottom = 50.dp),
-                                            color= Color.White
-                                        )
-
-                                        IconButton(
-                                            onClick = { /*TODO*/ },
-                                            modifier = Modifier.padding(bottom = 50.dp)
-                                        ) {
-                                            Icon(
-                                                Icons.Filled.Notifications,
-                                                contentDescription = "notification",
-                                                tint = Color(0xff00E0F7)
-                                            )
-                                        }
-                                    }
-                                }
-
-                                Row(
-                                    modifier = Modifier.fillMaxWidth(),
-                                    horizontalArrangement = Arrangement.Center,
-                                    verticalAlignment = Alignment.CenterVertically
-                                ) {
-                                    Text(text = "Balance: ${it.equipmentList[0].balance} MAD", color = Color.White,modifier= Modifier.padding(top=80.dp,end=70.dp), fontSize = 25.sp, fontStyle = FontStyle.Italic)
-                                }
-                            }
-                        }
-                    }
-                )
-            }
+                        Text(
+                            text = "Transfer", modifier = Modifier
+                                .weight(1f),
+                            color=Color.White
+                        ) }
+                })
         },
 
         drawerContent = {
@@ -148,7 +106,7 @@ fun TransferScreen1(
                 .padding(horizontal = 16.dp),
             
         ) {
-            Spacer(modifier = Modifier.height(1.dp))
+            Spacer(modifier = Modifier.height(50.dp))
             Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
                 Text(
                     text = "From",
@@ -159,11 +117,7 @@ fun TransferScreen1(
             }
             user.responseLogin?.let {
                 val wallets = it.equipmentList
-                Card(
-                    modifier = Modifier.padding(1.dp),
-                    shape = RoundedCornerShape(18.dp),
 
-                    ) {
                     AutoSlidingCarousel(
                         itemsCount = wallets.size,
                         itemContent = { index ->
@@ -178,8 +132,8 @@ fun TransferScreen1(
                             )
                         }
                     )
-                }}
-            Spacer(modifier = Modifier.height(5.dp))
+                }
+            Spacer(modifier = Modifier.height(30.dp))
             Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
                 Text(
                     text = "To",
@@ -188,10 +142,11 @@ fun TransferScreen1(
                     color = Color.Black,
                     )
             }
+            Spacer(modifier = Modifier.height(30.dp))
             Box(
                 modifier = Modifier
                     .width(500.dp)
-                    .background(color = Color.Black, shape = RoundedCornerShape(20.dp)),
+                    .background(color = Color(0xff112D4E), shape = RoundedCornerShape(20.dp)),
                 contentAlignment = Alignment.Center,
             )
             {
@@ -207,10 +162,14 @@ fun TransferScreen1(
                     textColor = Color.Black, // Change the text color here
                     cursorColor = Color.Blue, // Change the cursor color here
                     focusedIndicatorColor = Color.Transparent, // Change the focused border color here
-                    unfocusedIndicatorColor = Color.Transparent // Change the unfocused border color here
+                    unfocusedIndicatorColor = Color.Transparent,
+                    backgroundColor = Color(backgroundColor)
                 ),
                 value = amount,
-                onValueChange = { transferViewModel.onAmountChanged(it)},
+                onValueChange = { newValue ->
+                    val filteredValue = newValue.filter { it != ',' }
+                    transferViewModel.onAmountChanged(filteredValue)
+                },
                 label = { Text("Amount*", color = Color.Black) },
                 modifier = Modifier
                     .fillMaxWidth()
@@ -220,7 +179,10 @@ fun TransferScreen1(
                         shape = RoundedCornerShape(20)
                     ),
                 shape = RoundedCornerShape(20.dp),
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
+                keyboardOptions = KeyboardOptions(
+                    keyboardType = KeyboardType.Number,
+                    imeAction = ImeAction.Next
+                )
             )
 
             TextField(
@@ -228,7 +190,9 @@ fun TransferScreen1(
                     textColor = Color.Black, // Change the text color here
                     cursorColor = Color.Blue, // Change the cursor color here
                     focusedIndicatorColor = Color.Transparent, // Change the focused border color here
-                    unfocusedIndicatorColor = Color.Transparent // Change the unfocused border color here
+                    unfocusedIndicatorColor = Color.Transparent,
+                    backgroundColor = Color(backgroundColor)
+
                 ),
                 value = memo,
                 onValueChange = { transferViewModel.onMemoChanged(it)},
@@ -240,18 +204,21 @@ fun TransferScreen1(
                         border = BorderStroke(2.dp, color = Color.Black),
                         shape = RoundedCornerShape(20)
                     ),
-                shape = RoundedCornerShape(20.dp)
+                shape = RoundedCornerShape(20.dp),
+                keyboardOptions = KeyboardOptions(
+                    imeAction = ImeAction.Done
+                )
             )
-
+            Spacer(modifier = Modifier.height(15.dp))
             Button(
-                colors = ButtonDefaults.buttonColors(backgroundColor = Color(0xff00E0F7)),
+                colors = ButtonDefaults.buttonColors(backgroundColor = Color(0xff112D4E)),
                 shape = RoundedCornerShape(50),
                 onClick = {
                    if(selectedOption=="Select beneficiary"){
                        Toast.makeText(context,"Please choose a beneficiary!!",Toast.LENGTH_SHORT).show()
                    }else if(memo =="" || amount==""){
                        showDialog2 = true
-                       Toast.makeText(context,"Fill the necessary fields!! ",Toast.LENGTH_SHORT).show()
+
                    }  else {
                        navController.navigate("transfer2")
                    }
@@ -268,10 +235,11 @@ fun TransferScreen1(
             }
             if (showDialog) {
                 AlertDialog(
-
+                    backgroundColor= Color(backgroundColor),
                     onDismissRequest = { showDialog = false },
                     title = {
-                        Text(text = "Choose a beneficiary")
+                        Text(text = "Choose a beneficiary",
+                            fontWeight = FontWeight.Bold)
                     },
                     buttons = {
                         Column {
@@ -279,7 +247,7 @@ fun TransferScreen1(
                                Button(
                                    colors = ButtonDefaults.buttonColors(
                                        backgroundColor = Color(
-                                           0xff00E0F7
+                                           0xffAFD3E2
                                        )
                                    ),
                                    onClick = {
@@ -291,17 +259,18 @@ fun TransferScreen1(
                                    },
                                    modifier = Modifier
                                        .fillMaxWidth()
-                                       .padding(vertical = 8.dp)
+                                       .padding(vertical =2.dp)
                                ) {
                                    Text(text = beneficiary.name, color = Color.Black)
                                }
 
                            }
                             Button(
-                                colors = ButtonDefaults.buttonColors(backgroundColor = Color.Yellow),
+                                colors = ButtonDefaults.buttonColors(backgroundColor = Color(
+                                    topBarColor)),
                                 shape = RoundedCornerShape(50),
                                 onClick = {
-                                    Toast.makeText(context, "Still in development", Toast.LENGTH_SHORT).show()
+                                    navController.navigate(Routes.AddBeneficiary.name)
                                 },
                                 modifier = Modifier
                                     .padding(start=85.dp)
@@ -311,7 +280,7 @@ fun TransferScreen1(
 
                                 Text(
                                     text = "Add beneficiary",
-                                    color = Color.Black,
+                                    color = Color.White,
                                 )
                             }
                         }
@@ -320,31 +289,26 @@ fun TransferScreen1(
             }
             if (showDialog2) {
                 AlertDialog(
+                    backgroundColor = Color(backgroundColor),
                     modifier = Modifier.height(150.dp).width(300.dp),
 
                     onDismissRequest = { showDialog2 = false },
                     title = {
-                        Text(text = "Fill the necessary fields",modifier=Modifier.padding(start=40.dp,top=20.dp))
+                        Text(text = "Fill the necessary fields",modifier=Modifier.padding(start=40.dp,top=20.dp),
+                            fontWeight = FontWeight.Bold)
                     },
                     buttons = {
                         Column {
 
                             Button(
-                                colors = ButtonDefaults.buttonColors(backgroundColor = Color.Red),
+                                colors = ButtonDefaults.buttonColors(backgroundColor = Color(topBarColor)),
                                 shape = RoundedCornerShape(50),
-                                onClick = {
-                                    showDialog2 = false
-
-                                },
-                                modifier = Modifier
-                                    .padding(start=50.dp,top=60.dp).width(200.dp)
-
-
+                                onClick = { showDialog2 = false },
+                                modifier = Modifier.padding(start=50.dp,top=60.dp).width(200.dp)
                             ) {
-
                                 Text(
                                     text = "OK",
-                                    color = Color.Black,
+                                    color = Color.White,
                                 )
                             }
                         }

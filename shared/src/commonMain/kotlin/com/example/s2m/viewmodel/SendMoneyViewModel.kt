@@ -36,6 +36,9 @@ class SendMoneyViewModel(private val repository: SendMoneyRepository):ViewModel(
     private val _secretCode: MutableStateFlow<String> = MutableStateFlow("")
     val secretCode: StateFlow<String> = _secretCode.asStateFlow()
 
+    private val _expiryDate: MutableStateFlow<String> = MutableStateFlow("")
+    val expiryDate: StateFlow<String> = _expiryDate.asStateFlow()
+
     private val _isLoading: MutableStateFlow<Boolean> = MutableStateFlow(false)
     val isLoading: StateFlow<Boolean> = _isLoading.asStateFlow()
 
@@ -80,11 +83,12 @@ class SendMoneyViewModel(private val repository: SendMoneyRepository):ViewModel(
         _identityNumber.value=""
         _secretCode.value=""
         _beneficiaryName.value=""
+        _expiryDate.value = ""
         _sendMoneyState.value=SendMoneyState.Idle
     }
 
     fun sendMoney(amount:String,memo:String,toPhone:String,pin:String,toName:String,
-                  identityNumber:String,notify:Boolean,secretCode:String){
+                  identityNumber:String,notify:Boolean,secretCode:String):SendMoneyState{
 
         runBlocking {
             val response=async {
@@ -92,10 +96,18 @@ class SendMoneyViewModel(private val repository: SendMoneyRepository):ViewModel(
             }
             if(response.await()?.responseCode  == "000"){
                 _sendMoneyState.value = SendMoneyState.Success
-            }else{
-
+                _expiryDate.value= response.await()?.expiryDate.toString()
+            }else if (response.await()?.responseCode  == "373"){
+                _sendMoneyState.value = SendMoneyState.Error(SendMoneyErrorType.INVALIDPHONE)
+            }else if (response.await()?.responseCode  == "312"){
+                _sendMoneyState.value = SendMoneyState.Error(SendMoneyErrorType.PIN)
+            }else if (response.await()?.responseCode  == "367"){
+                _sendMoneyState.value = SendMoneyState.Error(SendMoneyErrorType.MAXTRANSACTION)
+            }else if (response.await()?.responseCode  == "365"){
+                _sendMoneyState.value = SendMoneyState.Error(SendMoneyErrorType.MINAMOUNT)
             }
         }
+        return _sendMoneyState.value
     }
 
     sealed class SendMoneyState {

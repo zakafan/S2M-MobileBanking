@@ -2,9 +2,7 @@ package com.example.s2m.android.util
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
-import androidx.compose.material.Button
-import androidx.compose.material.Icon
-import androidx.compose.material.Text
+import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ExitToApp
 import androidx.compose.material.icons.filled.Home
@@ -39,7 +37,7 @@ fun DrawerContent(user: User, loginViewModel: LoginViewModel, navController: Nav
         Box(
             modifier = Modifier
                 .height(160.dp)
-                .background(color = Color.LightGray),
+                .background(color = Color(topBarColor)),
             contentAlignment = Alignment.Center
         ) {
             // User Info Placeholder Image and Text
@@ -51,7 +49,8 @@ fun DrawerContent(user: User, loginViewModel: LoginViewModel, navController: Nav
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(top = 8.dp)
+                .padding(top = 8.dp).background(Color(backgroundColor))
+
         ) {
             // Home Icon and Text
             Row(
@@ -101,6 +100,7 @@ fun DrawerContent(user: User, loginViewModel: LoginViewModel, navController: Nav
 
         // Logout Button
         Button(
+            colors = ButtonDefaults.buttonColors(backgroundColor = Color(topBarColor)),
             onClick = {
 
                 if(logoutViewModel.logout()){
@@ -121,11 +121,12 @@ fun DrawerContent(user: User, loginViewModel: LoginViewModel, navController: Nav
             Row(
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Icon(Icons.Filled.ExitToApp, contentDescription = "Logout")
+                Icon(Icons.Filled.ExitToApp, contentDescription = "Logout",tint = Color.White)
                 Text(
                     text = "Logout",
                     modifier = Modifier.padding(start = 16.dp),
-                    fontSize = 18.sp
+                    fontSize = 18.sp,
+                    color = Color.White
                 )
             }
         }

@@ -26,7 +26,7 @@ class SendMoneyRepository(loginViewModel: LoginViewModel) {
                     toCurrencyIsoCode = "887",
                     pin = pin,
                     toName = toName,
-                    toPhone =toPhone,
+                    toPhone ="+212$toPhone",
                     fromAccount ="88700022222828302756816887" ,
                     memo =memo ,
                     fromCurrencyIsoCode = "887",

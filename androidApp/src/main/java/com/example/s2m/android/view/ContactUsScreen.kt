@@ -23,6 +23,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import com.example.s2m.android.util.backgroundColor
+import com.example.s2m.android.util.topBarColor
 import com.example.s2m.viewmodel.ContactUsViewModel
 import com.google.relay.compose.BoxScopeInstanceImpl.align
 
@@ -49,44 +51,31 @@ fun ContactUsScreen(
     Scaffold (
         topBar = {
             TopAppBar(
-                backgroundColor = Color.Black,
-                modifier = Modifier.height(80.dp),
+                backgroundColor = Color(topBarColor),
                 title = {
-
-                    Column(
-                        modifier = Modifier.align(Alignment.TopCenter)
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Row(
-                            modifier = Modifier.padding(bottom = 5.dp),
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            IconButton(
-                                onClick = {navController.popBackStack()
+                        IconButton(
+                            onClick = {navController.popBackStack()
 
-                                },
-                                modifier = Modifier.padding(bottom = 50.dp)
+                            },
+
                             ) {
-                                Icon(
-                                    Icons.Filled.ArrowBack,
-                                    contentDescription = "Menu",
-                                    tint = Color(0xff00E0F7),
-                                    //  modifier = Modifier.padding(end = 1.dp)
-                                )
-                            }
+                            Icon(
+                                Icons.Filled.ArrowBack,
+                                contentDescription = "Back",
+                                tint = Color.White,
+                            ) }
 
-                            Text(
-                                text = "Contact Us", modifier = Modifier
-                                    .weight(1f)
-                                    .padding(bottom = 50.dp),
-                                color= Color.White
-                            )
-
-                        }
-                    }
-
+                        Text(
+                            text = "Contact Us", modifier = Modifier
+                                .weight(1f),
+                            color=Color.White
+                        ) }
                 })
         },
-        backgroundColor = Color.LightGray,
+        backgroundColor = Color(backgroundColor),
 
     ){
 
@@ -99,7 +88,7 @@ fun ContactUsScreen(
             Box(
                 modifier = Modifier
                     .width(500.dp)
-                    .background(color = Color.DarkGray, shape = RoundedCornerShape(20.dp)),
+                    .background(color = Color(0xffAFD3E2), shape = RoundedCornerShape(20.dp)),
                 contentAlignment = Alignment.Center,
             ) {
                 TextButton(
@@ -108,7 +97,7 @@ fun ContactUsScreen(
                 ) {
                     Text(
                         text = selectedOption,
-                        color = Color.White,
+                        color = Color.Black,
                         fontSize = 24.sp,
                         fontWeight = FontWeight.Bold
                     )
@@ -119,7 +108,8 @@ fun ContactUsScreen(
                     textColor = Color.Black, // Change the text color here
                     cursorColor = Color.Blue, // Change the cursor color here
                     focusedIndicatorColor = Color.Transparent, // Change the focused border color here
-                    unfocusedIndicatorColor = Color.Transparent // Change the unfocused border color here
+                    unfocusedIndicatorColor = Color.Transparent ,
+                    backgroundColor = Color(backgroundColor)
                 ),
                 value = subject,
                 onValueChange = { contactUsViewModel.onSubjectChanged(it)},
@@ -140,7 +130,8 @@ fun ContactUsScreen(
                     textColor = Color.Black, // Change the text color here
                     cursorColor = Color.Blue, // Change the cursor color here
                     focusedIndicatorColor = Color.Transparent, // Change the focused border color here
-                    unfocusedIndicatorColor = Color.Transparent // Change the unfocused border color here
+                    unfocusedIndicatorColor = Color.Transparent ,
+                    backgroundColor = Color(backgroundColor)
                 ),
                 value = fullName,
                 onValueChange = { contactUsViewModel.onFullNameChanged(it)},
@@ -160,7 +151,8 @@ fun ContactUsScreen(
                     textColor = Color.Black, // Change the text color here
                     cursorColor = Color.Blue, // Change the cursor color here
                     focusedIndicatorColor = Color.Transparent, // Change the focused border color here
-                    unfocusedIndicatorColor = Color.Transparent // Change the unfocused border color here
+                    unfocusedIndicatorColor = Color.Transparent,
+                    backgroundColor = Color(backgroundColor)
                 ),
                 value = phoneNumber,
                 onValueChange = { contactUsViewModel.onPhoneNumberChanged(it)},
@@ -180,7 +172,8 @@ fun ContactUsScreen(
                     textColor = Color.Black, // Change the text color here
                     cursorColor = Color.Blue, // Change the cursor color here
                     focusedIndicatorColor = Color.Transparent, // Change the focused border color here
-                    unfocusedIndicatorColor = Color.Transparent // Change the unfocused border color here
+                    unfocusedIndicatorColor = Color.Transparent ,
+                    backgroundColor = Color(backgroundColor)
                 ),
                 value = email,
                 onValueChange = { contactUsViewModel.onEmailChanged(it)},
@@ -200,7 +193,8 @@ fun ContactUsScreen(
                     textColor = Color.Black, // Change the text color here
                     cursorColor = Color.Blue, // Change the cursor color here
                     focusedIndicatorColor = Color.Transparent, // Change the focused border color here
-                    unfocusedIndicatorColor = Color.Transparent // Change the unfocused border color here
+                    unfocusedIndicatorColor = Color.Transparent,
+                    backgroundColor = Color(backgroundColor)
                 ),
                 value = message,
                 onValueChange = { contactUsViewModel.onMessageChanged(it)},
@@ -216,7 +210,7 @@ fun ContactUsScreen(
                 shape = RoundedCornerShape(20.dp)
             )
             Button(
-                colors = ButtonDefaults.buttonColors(backgroundColor = Color(0xff00E0F7)),
+                colors = ButtonDefaults.buttonColors(backgroundColor = Color(topBarColor)),
                 shape = RoundedCornerShape(50),
                 onClick = {
                           if(contactUsViewModel.contactUs(subject,email,requestType,message,fullName,phoneNumber)
@@ -238,7 +232,7 @@ fun ContactUsScreen(
 
             if (showDialog) {
                 AlertDialog(
-                    backgroundColor = Color.White,
+                    backgroundColor = Color(backgroundColor),
                     onDismissRequest = { showDialog = false },
                     title = {
                         Text(text = "Select your request", color = Color.Black, fontWeight = FontWeight.SemiBold)
@@ -248,9 +242,7 @@ fun ContactUsScreen(
                             requestTypeList.forEach { requesttype ->
                                 Button(
                                     colors = ButtonDefaults.buttonColors(
-                                        backgroundColor = Color(
-                                            0xff00E0F7
-                                        )
+                                        backgroundColor = Color(topBarColor)
                                     ),
                                     onClick = {
                                         selectedOption = requesttype
@@ -263,7 +255,7 @@ fun ContactUsScreen(
                                         .fillMaxWidth()
                                         .padding(vertical = 4.dp)
                                 ) {
-                                    Text(text = requesttype, color = Color.Black)
+                                    Text(text = requesttype, color = Color.White)
                                 }
 
                             }

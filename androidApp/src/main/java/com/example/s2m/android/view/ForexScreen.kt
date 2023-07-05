@@ -9,30 +9,23 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.*
-import androidx.compose.material.SnackbarDefaults.backgroundColor
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material.icons.filled.Menu
-import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
-import com.example.s2m.android.util.BottomNavLogin
+import com.example.s2m.android.util.topBarColor
 import com.example.s2m.model.Forex
 import com.example.s2m.viewmodel.ForexViewModel
-import com.google.relay.compose.BoxScopeInstanceImpl.align
-import kotlinx.coroutines.launch
-import java.text.DateFormat
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
@@ -50,43 +43,31 @@ fun ForexScreen(
     Scaffold (
         topBar = {
             TopAppBar(
-                backgroundColor = Color.Black,
-                modifier = Modifier.height(80.dp),
+                backgroundColor = Color(topBarColor),
                 title = {
-
-                        Column(
-                            modifier = Modifier.align(Alignment.TopCenter)
-                        ) {
                             Row(
-                                modifier = Modifier.padding(bottom = 5.dp),
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
                                 IconButton(
                                     onClick = {navController.popBackStack()
 
                                     },
-                                    modifier = Modifier.padding(bottom = 50.dp)
+
                                 ) {
                                     Icon(
                                         Icons.Filled.ArrowBack,
                                         contentDescription = "Menu",
-                                        tint = Color(0xff00E0F7),
-                                      //  modifier = Modifier.padding(end = 1.dp)
-                                    )
-                                }
+                                        tint = Color.White,
+                                    ) }
 
                                 Text(
                                     text = "Forex Table", modifier = Modifier
-                                        .weight(1f)
-                                        .padding(bottom = 50.dp),
+                                        .weight(1f),
                                     color=Color.White
-                                )
-
-                            }
-                            }
-
-                 })},
-        backgroundColor = Color.LightGray,
+                                ) }
+                 })
+                 },
+        backgroundColor = Color(com.example.s2m.android.util.backgroundColor)
 
             ){
 
@@ -173,7 +154,7 @@ fun ForexRow(forex: Forex) {
         Box(
             modifier = Modifier
                 .size(32.dp)
-                .background(color = Color.Gray, shape = CircleShape)
+                .background(color = Color(0xffAFD3E2), shape = CircleShape)
         ) {
             Text(
                 text = forex.sourceCurrencyAlpha3Code ?: "",

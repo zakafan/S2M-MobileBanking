@@ -1,27 +1,21 @@
-package com.example.s2m.android.view.sendMoneyScreen
+package com.example.s2m.android.view.settingsScreens
 
 import android.annotation.SuppressLint
 import android.widget.Toast
-import androidx.compose.foundation.*
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material.icons.filled.Menu
-import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.ColorFilter
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
@@ -29,33 +23,22 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
-import com.example.s2m.android.R
 import com.example.s2m.android.getHash
 import com.example.s2m.android.util.*
-import com.example.s2m.android.view.AutoSlidingCarousel
-import com.example.s2m.android.view.WalletCard
-import com.example.s2m.model.User
 import com.example.s2m.util.SendMoneyErrorType
-import com.example.s2m.util.TransferErrorType
-import com.example.s2m.viewmodel.LoginViewModel
-import com.example.s2m.viewmodel.LogoutViewModel
+import com.example.s2m.viewmodel.ProfileViewModel
 import com.example.s2m.viewmodel.SendMoneyViewModel
-import com.example.s2m.viewmodel.TransferViewModel
-import kotlinx.coroutines.launch
 
 @SuppressLint("UnusedMaterialScaffoldPaddingParameter")
 @Composable
-fun SendMoneyScreen3(
+fun ChangePasswordPin(
     navController: NavController,
-    loginViewModel: LoginViewModel = viewModel(),
-    sendMoneyViewModel: SendMoneyViewModel = viewModel(),
-    logoutViewModel: LogoutViewModel = viewModel()
-){
+    profileViewModel: ProfileViewModel = viewModel()
 
-    val user: User by loginViewModel.user.collectAsState()
-    var showDialog1 by remember { mutableStateOf(false) }
+){
     var otpValue by remember{ mutableStateOf("") }
-    val context = LocalContext.current
+    val pin : String by profileViewModel.pin.collectAsState()
+    var showDialog1 by remember { mutableStateOf(false) }
 
     Scaffold(
 
@@ -80,15 +63,11 @@ fun SendMoneyScreen3(
                             ) }
 
                         Text(
-                            text = "Money Send", modifier = Modifier
+                            text = "Change Password", modifier = Modifier
                                 .weight(1f),
-                            color=Color.White
+                            color= Color.White
                         ) }
                 })
-        },
-
-        drawerContent = {
-            DrawerContent(user = user, loginViewModel = loginViewModel, navController = navController, logoutViewModel =logoutViewModel )
         },
         bottomBar = {
             BottomNav(navController = navController,"beneficiary")
@@ -146,7 +125,7 @@ fun SendMoneyScreen3(
                                     )
                                     .padding(2.dp),
                                 text=char,
-                                style =MaterialTheme.typography.h4,
+                                style = MaterialTheme.typography.h4,
                                 color = Color.Black,
                                 textAlign = TextAlign.Center
                             )
@@ -167,38 +146,17 @@ fun SendMoneyScreen3(
                     colors = ButtonDefaults.buttonColors(backgroundColor = Color(topBarColor)),
                     shape = RoundedCornerShape(50),
                     onClick = {
-                        sendMoneyViewModel.onPinChanged(otpValue)
-                        if(sendMoneyViewModel.sendMoney(sendMoneyViewModel.amount.value,sendMoneyViewModel.memo.value,sendMoneyViewModel.toPhone.value,
-                                getHash(sendMoneyViewModel.pin.value),sendMoneyViewModel.beneficiaryName.value,sendMoneyViewModel.identityNumber.value,sendMoneyViewModel.notify.value,
-                                getHash(sendMoneyViewModel.secretCode.value )
-                            )== SendMoneyViewModel.SendMoneyState.Success){
-                           navController.navigate(Routes.Send4.name)
-                        }else if(sendMoneyViewModel.sendMoney(sendMoneyViewModel.amount.value,sendMoneyViewModel.memo.value,sendMoneyViewModel.toPhone.value,
-                                getHash(sendMoneyViewModel.pin.value),sendMoneyViewModel.beneficiaryName.value,sendMoneyViewModel.identityNumber.value,sendMoneyViewModel.notify.value,
-                                getHash(sendMoneyViewModel.secretCode.value )
-                            )== SendMoneyViewModel.SendMoneyState.Error(SendMoneyErrorType.MINAMOUNT)){
-                            Toast.makeText(context,"The amount is low. Please enter another amount",
-                                Toast.LENGTH_SHORT).show()
-                        }else if(sendMoneyViewModel.sendMoney(sendMoneyViewModel.amount.value,sendMoneyViewModel.memo.value,sendMoneyViewModel.toPhone.value,
-                                getHash(sendMoneyViewModel.pin.value),sendMoneyViewModel.beneficiaryName.value,sendMoneyViewModel.identityNumber.value,sendMoneyViewModel.notify.value,
-                                getHash(sendMoneyViewModel.secretCode.value )
-                            )== SendMoneyViewModel.SendMoneyState.Error(SendMoneyErrorType.PIN)){
-                            showDialog1 = true
-                        }else if (sendMoneyViewModel.sendMoney(sendMoneyViewModel.amount.value,sendMoneyViewModel.memo.value,sendMoneyViewModel.toPhone.value,
-                                getHash(sendMoneyViewModel.pin.value),sendMoneyViewModel.beneficiaryName.value,sendMoneyViewModel.identityNumber.value,sendMoneyViewModel.notify.value,
-                                getHash(sendMoneyViewModel.secretCode.value )
-                            )== SendMoneyViewModel.SendMoneyState.Error(SendMoneyErrorType.MAXTRANSACTION)){
-                            Toast.makeText(context,"the number of maximum transactions is reached !!",
-                                Toast.LENGTH_SHORT).show()
-                        }else if (sendMoneyViewModel.sendMoney(sendMoneyViewModel.amount.value,sendMoneyViewModel.memo.value,sendMoneyViewModel.toPhone.value,
-                                getHash(sendMoneyViewModel.pin.value),sendMoneyViewModel.beneficiaryName.value,sendMoneyViewModel.identityNumber.value,sendMoneyViewModel.notify.value,
-                                getHash(sendMoneyViewModel.secretCode.value )
-                            )== SendMoneyViewModel.SendMoneyState.Error(SendMoneyErrorType.INVALIDPHONE)){
-                            Toast.makeText(context,"Invalid phone number !!",
-                                Toast.LENGTH_SHORT).show()
+                        profileViewModel.onPinChanged(otpValue)
+                        if(
+                                profileViewModel.changePassword(
+                                    getHash(profileViewModel.oldPassword.value) ,
+                                    getHash(profileViewModel.newPassword.value) ,
+                                    getHash(profileViewModel.confirmNewPassword.value) ,
+                                    getHash( profileViewModel.pin.value))
+                                ==  ProfileViewModel.ChangePasswordState.Success){
+                            profileViewModel.clearState()
+                            navController.navigate(Routes.Welcome.name)
                         }
-
-
                     },
                     modifier = Modifier
                         .width(500.dp)
@@ -222,14 +180,16 @@ fun SendMoneyScreen3(
 
                 onDismissRequest = { showDialog1 = false },
                 title = {
-                    Text(text = "Invalid PIN!!",modifier=Modifier.padding(start=80.dp,top=20.dp),
+                    Text(text = "Invalid PIN!!",modifier= Modifier.padding(start=80.dp,top=20.dp),
                         fontWeight = FontWeight.Bold)
                 },
                 buttons = {
                     Column {
                         Button(
                             colors = ButtonDefaults.buttonColors(backgroundColor = Color(
-                                topBarColor)),
+                                topBarColor
+                            )
+                            ),
                             shape = RoundedCornerShape(50),
                             onClick = {
                                 showDialog1 = false
@@ -250,7 +210,6 @@ fun SendMoneyScreen3(
             )
         }
     }
-
 
 
 }
