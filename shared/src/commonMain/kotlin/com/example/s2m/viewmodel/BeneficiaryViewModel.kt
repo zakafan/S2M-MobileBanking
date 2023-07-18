@@ -44,6 +44,19 @@ class BeneficiaryViewModel(private val repository: AddBeneficiaryRepository) :Vi
         }
         return _addBeneficiaryState.value
     }
+
+    fun suspendBeneficiary(phone:String):AddBeneficiaryState{
+        runBlocking {
+            val response = async {
+                repository.suspendBeneficiary(phone)
+            }
+            println(response.await()?.responseCode + response.await()?.responseDescription)
+            if(response.await()?.responseCode == "000"){
+                _addBeneficiaryState.value = AddBeneficiaryState.Success
+            }
+        }
+        return _addBeneficiaryState.value
+    }
     fun clearState(){
         _beneficiaryName.value= ""
         _phone.value= ""

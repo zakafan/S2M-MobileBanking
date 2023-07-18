@@ -61,4 +61,6 @@ dependencies {
     implementation ("com.google.android.gms:play-services-location:18.0.0")
     implementation ("org.jetbrains.kotlinx:kotlinx-coroutines-play-services:1.5.0")
 
+
+
 }

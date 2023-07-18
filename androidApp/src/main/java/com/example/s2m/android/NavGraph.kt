@@ -15,6 +15,9 @@ import com.example.s2m.android.view.alertScreens.AlertsScreen2
 import com.example.s2m.android.view.beneficiaryScreen.AddBeneficiaryScreen
 import com.example.s2m.android.view.beneficiaryScreen.BeneficiaryScreen
 import com.example.s2m.android.view.beneficiaryScreen.RecapAddBeneficiaryScreen
+import com.example.s2m.android.view.merchantPaymentScreen.MerchantPaymentScreen1
+import com.example.s2m.android.view.merchantPaymentScreen.MerchantPaymentScreen2
+import com.example.s2m.android.view.merchantPaymentScreen.MerchantPaymentScreen3
 import com.example.s2m.android.view.sendMoneyScreen.SendMoneyScreen1
 import com.example.s2m.android.view.sendMoneyScreen.SendMoneyScreen2
 import com.example.s2m.android.view.sendMoneyScreen.SendMoneyScreen3
@@ -40,6 +43,7 @@ private val logoutViewModel    = LogoutViewModel(repository = LogoutRepository(l
 private val beneficiaryViewModel = BeneficiaryViewModel(repository = AddBeneficiaryRepository(loginViewModel))
 private val profileViewModel    = ProfileViewModel(repository = ProfileRepository(loginViewModel))
 private val withdrawalViewModel = WithdrawalViewModel(repository = WithdrawalRepository(loginViewModel))
+private val merchantPaymentViewModel = MerchantPaymentViewModel(repository = MerchantPaymentRepository(loginViewModel))
 
 
 @RequiresApi(Build.VERSION_CODES.O)
@@ -61,7 +65,7 @@ fun SetupNavGraph(
             WelcomeScreen(loginViewModel = loginViewModel, navController = navController, alertsViewModel, logoutViewModel = logoutViewModel)
         }
         composable(route = Routes.Beneficiary.name) {
-            BeneficiaryScreen(loginViewModel = loginViewModel, navController = navController,logoutViewModel= logoutViewModel)
+            BeneficiaryScreen(loginViewModel = loginViewModel, navController = navController,logoutViewModel= logoutViewModel, beneficiaryViewModel = beneficiaryViewModel)
         }
         composable(route = Routes.AddBeneficiary.name) {
             AddBeneficiaryScreen( navController = navController, addBeneficiaryViewModel = beneficiaryViewModel )
@@ -125,6 +129,15 @@ fun SetupNavGraph(
         }
         composable(route= Routes.Withdrawal3.name){
             WithdrawalScreen3(navController = navController, withdrawalViewModel = withdrawalViewModel, loginViewModel = loginViewModel  )
+        }
+        composable(route= Routes.Merchant1.name){
+            MerchantPaymentScreen1(navController = navController, merchantPaymentViewModel = merchantPaymentViewModel, loginViewModel = loginViewModel  )
+        }
+        composable(route= Routes.Merchant2.name){
+            MerchantPaymentScreen2(navController = navController, merchantPaymentViewModel = merchantPaymentViewModel, loginViewModel = loginViewModel  )
+        }
+        composable(route= Routes.Merchant3.name){
+            MerchantPaymentScreen3(navController = navController, merchantPaymentViewModel = merchantPaymentViewModel, loginViewModel = loginViewModel  )
         }
 
 

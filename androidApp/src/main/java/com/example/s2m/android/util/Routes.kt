@@ -22,5 +22,8 @@ enum class Routes {
     ChangePassword,
     Withdrawal1,
     Withdrawal2,
-    Withdrawal3
+    Withdrawal3,
+    Merchant1,
+    Merchant2,
+    Merchant3
 }

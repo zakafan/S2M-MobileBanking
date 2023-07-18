@@ -4,5 +4,6 @@ enum class SendMoneyErrorType {
     PIN,
     MINAMOUNT,
     MAXTRANSACTION,
-    INVALIDPHONE
+    INVALIDPHONE,
+    ACCOUNTNOTFOUND
 }

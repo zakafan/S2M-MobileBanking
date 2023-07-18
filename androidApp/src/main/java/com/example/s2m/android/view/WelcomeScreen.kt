@@ -283,8 +283,7 @@ fun WelcomeScreen(
                     Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(16.dp)) {
                         CustomButton1(onClick = { navController.navigate(Routes.History.name) },text=" History",icon=R.drawable.time_management)
                         CustomButton1(onClick = { },text="Wallet details",icon=R.drawable.card)
-                        CustomButton1(onClick = { },text="Pay Merchant",icon=R.drawable.payment)
-
+                        CustomButton1(onClick = { navController.navigate(Routes.Merchant1.name)},text="Pay Merchant",icon=R.drawable.payment)
                     }
                 }
             }

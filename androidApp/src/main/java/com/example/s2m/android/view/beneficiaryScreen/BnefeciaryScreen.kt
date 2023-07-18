@@ -25,6 +25,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.s2m.android.util.*
 import com.example.s2m.model.User
+import com.example.s2m.viewmodel.BeneficiaryViewModel
 import com.example.s2m.viewmodel.LoginViewModel
 import com.example.s2m.viewmodel.LogoutViewModel
 import kotlinx.coroutines.launch
@@ -35,7 +36,8 @@ import kotlinx.coroutines.launch
 fun BeneficiaryScreen(
     loginViewModel: LoginViewModel = viewModel(),
     navController: NavController,
-    logoutViewModel: LogoutViewModel = viewModel()
+    logoutViewModel: LogoutViewModel = viewModel(),
+    beneficiaryViewModel: BeneficiaryViewModel = viewModel()
 ) {
 
     val user: User by loginViewModel.user.collectAsState()
@@ -140,7 +142,6 @@ fun BeneficiaryScreen(
                                         color = Color.Gray
                                     )
                                 }
-
                                 // Edit Button
                                 IconButton(
                                     onClick = {
@@ -156,7 +157,7 @@ fun BeneficiaryScreen(
                                 // Delete Button
                                 IconButton(
                                     onClick = {
-                                        // loginViewModel.deleteBeneficiary(beneficiary)
+                                        beneficiaryViewModel.suspendBeneficiary(beneficiary.mobilePhone)
                                     }
                                 ) {
                                     Icon(

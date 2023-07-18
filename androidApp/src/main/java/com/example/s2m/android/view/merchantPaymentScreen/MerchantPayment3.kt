@@ -1,4 +1,4 @@
-package com.example.s2m.android.view.withdrawalScreen
+package com.example.s2m.android.view.merchantPaymentScreen
 
 import android.annotation.SuppressLint
 import android.os.Build
@@ -21,29 +21,32 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.s2m.android.R
-import com.example.s2m.android.util.*
+import com.example.s2m.android.util.BottomNav
+import com.example.s2m.android.util.Routes
+import com.example.s2m.android.util.backgroundColor
+import com.example.s2m.android.util.topBarColor
 import com.example.s2m.model.User
 import com.example.s2m.viewmodel.LoginViewModel
-import com.example.s2m.viewmodel.WithdrawalViewModel
+import com.example.s2m.viewmodel.MerchantPaymentViewModel
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
 @RequiresApi(Build.VERSION_CODES.O)
 @SuppressLint("UnusedMaterialScaffoldPaddingParameter")
 @Composable
-fun WithdrawalScreen3(
+fun MerchantPaymentScreen3(
     navController: NavController,
-    withdrawalViewModel: WithdrawalViewModel = viewModel(),
+    merchantPaymentViewModel: MerchantPaymentViewModel = viewModel(),
     loginViewModel: LoginViewModel = viewModel()
-){
+) {
+
     val user: User by loginViewModel.user.collectAsState()
     val currentDateTime = LocalDateTime.now()
-
 // Define the desired date and time format
     val formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm")
-
 // Format the current date and time
     val formattedDateTime = currentDateTime.format(formatter)
+
 
     Scaffold(
 
@@ -57,13 +60,13 @@ fun WithdrawalScreen3(
                 TopAppBar(
                     backgroundColor = Color(topBarColor),
                     title = {
-                        Text(text = "Cash Out", color = Color.White)
+                        Text(text = "Merchant Payment", color = Color.White)
                     }
                 )
             }
         },
         bottomBar = {
-            BottomNav(navController = navController,"beneficiary")
+            BottomNav(navController = navController, "beneficiary")
         }
     ) {
 
@@ -109,13 +112,26 @@ fun WithdrawalScreen3(
                 elevation = 4.dp
             ) {
                 Column(modifier = Modifier.padding(16.dp)) {
-                    Text("From                       : ${user.responseLogin?.phone} ", color = Color.Black)
-                    Text("Merchant number : +212${withdrawalViewModel.toPhone.value} ", color = Color.Black)
-                    Text("Amount                  : ${withdrawalViewModel.amount.value} MAD", color = Color.Black)
-                    Text("Memo                     : ${withdrawalViewModel.memo.value}", color = Color.Black)
+                    Text(
+                        "From                       : ${user.responseLogin?.phone} ",
+                        color = Color.Black
+                    )
+                    Text(
+                        "Merchant number : +212${merchantPaymentViewModel.toPhone.value} ",
+                        color = Color.Black
+                    )
+                    Text(
+                        "Amount                  : ${merchantPaymentViewModel.amount.value} MAD",
+                        color = Color.Black
+                    )
+                    Text(
+                        "Memo                     : ${merchantPaymentViewModel.memo.value}",
+                        color = Color.Black
+                    )
                     Text("Fee                          : 5.00 MAD", color = Color.Black)
                     Text("Date                        : $formattedDateTime ", color = Color.Black)
-                    Text("Transaction N       : ${withdrawalViewModel.transactionN.value} ", color = Color.Black)
+                    Text(
+                        "Transaction N       : ${merchantPaymentViewModel.transactionN.value} ", color = Color.Black)
                 }
             }
 
@@ -131,7 +147,7 @@ fun WithdrawalScreen3(
                     colors = ButtonDefaults.buttonColors(backgroundColor = Color(topBarColor)),
                     shape = RoundedCornerShape(50),
                     onClick = {
-                        withdrawalViewModel.clearState()
+                        merchantPaymentViewModel.clearState()
                         navController.navigate(Routes.Welcome.name)
                     },
                     modifier = Modifier
@@ -172,8 +188,5 @@ fun WithdrawalScreen3(
             }
         }
 
-
-
     }
-
 }
