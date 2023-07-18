@@ -1,16 +1,7 @@
 package com.example.s2m.android.view.transferScreen
 
 import android.annotation.SuppressLint
-import android.content.Context
-import android.content.Intent
-import android.content.pm.PackageManager
-import android.graphics.Bitmap
-import android.graphics.Canvas
-import android.graphics.Picture
 import android.os.Build
-import android.view.View
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
@@ -21,30 +12,19 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.ImageBitmap
-import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.viewinterop.AndroidView
-import androidx.core.content.FileProvider
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.s2m.android.R
 import com.example.s2m.android.util.*
-import com.example.s2m.android.view.sendMoneyScreen.captureScreenshot
 import com.example.s2m.model.User
 import com.example.s2m.viewmodel.LoginViewModel
 import com.example.s2m.viewmodel.LogoutViewModel
 import com.example.s2m.viewmodel.TransferViewModel
-import java.io.File
-import java.io.FileOutputStream
-import java.io.OutputStream
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 @RequiresApi(Build.VERSION_CODES.O)
@@ -64,39 +44,9 @@ fun TransferScreen3(
     val formattedDateTime = currentDateTime.format(formatter)
 
     val context = LocalContext.current
-    val screenshotBitmap = captureScreenshot(context)
-    val launcher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.StartActivityForResult()
-    ) { result ->
-        // Handle the result if needed
-    }
 
-    val captureAndShareScreenshot = {
 
-        // Save the screenshot to a temporary file
-        val screenshotFile = File(context.cacheDir, "screenshot.png")
-        val outputStream = FileOutputStream(screenshotFile)
-        screenshotBitmap?.compress(Bitmap.CompressFormat.PNG, 100, outputStream)
-        outputStream.close()
 
-        // Create an intent to share the screenshot
-        val shareIntent = Intent(Intent.ACTION_SEND)
-        shareIntent.type = "image/*"
-        val uri = FileProvider.getUriForFile(context, context.packageName + ".fileprovider", screenshotFile)
-        shareIntent.putExtra(Intent.EXTRA_STREAM, uri)
-
-        // Launch the activity to choose an application
-        val chooserIntent = Intent.createChooser(shareIntent, "Share via")
-        val packageManager = context.packageManager
-        val activities = packageManager.queryIntentActivities(chooserIntent, PackageManager.MATCH_DEFAULT_ONLY)
-        val targetIntents = activities.map { intent ->
-            intent.activityInfo.packageName
-        }.toTypedArray()
-
-        launcher.launch(chooserIntent.apply {
-            putExtra(Intent.EXTRA_INITIAL_INTENTS, targetIntents)
-        })
-    }
 
     Scaffold(
         backgroundColor = Color(backgroundColor),
@@ -226,13 +176,4 @@ fun TransferScreen3(
             }
     }
     }
-}
-
-fun captureScreenshot(context: Context): Bitmap? {
-    val view = View(context)
-    view.measure(View.MeasureSpec.UNSPECIFIED, View.MeasureSpec.UNSPECIFIED)
-    val screenshot = Bitmap.createBitmap(view.measuredWidth, view.measuredHeight, Bitmap.Config.ARGB_8888)
-    val canvas = Canvas(screenshot)
-    view.draw(canvas)
-    return screenshot
 }
