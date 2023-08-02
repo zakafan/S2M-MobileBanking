@@ -8,6 +8,7 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 
 class TransferViewModel(private val repository: TransferRepository):ViewModel() {
@@ -60,39 +61,37 @@ class TransferViewModel(private val repository: TransferRepository):ViewModel() 
         _beneficiaryName.value=""
         _transferState.value=TransferState.Idle
     }
-    fun transfer(amount:String,memo:String,toPhone:String,pin:String): TransferState {
+    fun transfer(amount:String,memo:String,toPhone:String,pin:String) {
 
-        runBlocking {
+        _isLoading.value = true
+        viewModelScope.launch {
             val response = async {
                 repository.transfer(amount,memo,toPhone,pin)
 
             }
             println(response.await()?.responseDescription+"and"+response.await()?.responseCode)
             if (response.await()?.responseCode=="000"){
-               /* _amount.value=amount
-                _memo.value=memo
-                _toPhone.value=toPhone
-                _pin.value=pin*/
                 _transferState.value= TransferState.Success
+                _isLoading.value = false
                 println("transfer daz a 3chiri")
             }else if(response.await()?.responseCode=="312"){
                 _transferState.value= TransferState.Error(TransferErrorType.PIN)
+                _isLoading.value = false
             }else if(response.await()?.responseCode=="365"){
                 _transferState.value= TransferState.Error(TransferErrorType.MinAmount)
+                _isLoading.value = false
             }else if(response.await()?.responseCode=="367"){
+                _isLoading.value = false
                 _transferState.value= TransferState.Error(TransferErrorType.MaxTransactions)
             }
         }
-
         println(_transferState.value)
-        return _transferState.value
-    }
 
+    }
     sealed class TransferState {
         object Idle : TransferState()
         object  Success : TransferState()
         object Loading : TransferState()
         data class Error( val errorType: TransferErrorType) : TransferState()
-
     }
 }

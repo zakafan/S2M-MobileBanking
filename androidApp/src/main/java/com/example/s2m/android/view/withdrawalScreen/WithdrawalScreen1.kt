@@ -23,8 +23,6 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.s2m.android.util.*
-import com.example.s2m.android.view.AutoSlidingCarousel
-import com.example.s2m.android.view.WalletCard
 import com.example.s2m.model.User
 import com.example.s2m.viewmodel.LoginViewModel
 import com.example.s2m.viewmodel.WithdrawalViewModel

@@ -1,32 +1,25 @@
 package com.example.s2m.android.view
 
+import LoadingAnimation
 import android.annotation.SuppressLint
+import android.os.Handler
+import android.os.Looper
 import android.widget.Toast
-import androidx.activity.OnBackPressedCallback
 import androidx.activity.compose.LocalOnBackPressedDispatcherOwner
-import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.animation.core.infiniteRepeatable
-import androidx.compose.animation.core.tween
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.*
-import androidx.compose.material.MaterialTheme.colors
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Clear
-import androidx.compose.material.icons.filled.Delete
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.blur
-import androidx.compose.ui.draw.scale
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
@@ -39,17 +32,18 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.DialogProperties
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.s2m.android.LocationPermissionCallback
 import com.example.s2m.android.R
 import com.example.s2m.android.getHash
-import com.example.s2m.android.util.BottomNavLogin
-import com.example.s2m.android.util.Routes
+import com.example.s2m.android.util.*
 import com.example.s2m.util.LoginErrorType
 import com.example.s2m.viewmodel.ForexViewModel
 import com.example.s2m.viewmodel.LoginViewModel
-import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.delay
 
 
 @OptIn(ExperimentalComposeUiApi::class)
@@ -70,14 +64,24 @@ import kotlinx.coroutines.coroutineScope
     val maxLoginLength = 9
     val maxPasswordLength = 8
     val context = LocalContext.current
-    val isLoading1 by loginViewModel.isLoading.collectAsState()
+    val loading by loginViewModel.isLoading.collectAsState()
     val loginState by loginViewModel.loginState.collectAsState()
-    var loginInProgress by remember { mutableStateOf(false) }
 
 
-
-
-
+    LaunchedEffect(loginState) {
+        when (loginState) {
+            is LoginViewModel.LoginState.Success -> navController.navigate(Routes.Welcome.name)
+            is LoginViewModel.LoginState.Error -> {
+                val errorType = (loginState as LoginViewModel.LoginState.Error).errorType
+                when (errorType) {
+                    LoginErrorType.Api -> Toast.makeText(context, "API error", Toast.LENGTH_SHORT).show()
+                    LoginErrorType.Http -> Toast.makeText(context, "Incorrect email or password", Toast.LENGTH_SHORT).show()
+                    LoginErrorType.Connection -> Toast.makeText(context, "Check your internet connection", Toast.LENGTH_SHORT).show()
+                }
+            }
+            else -> {}
+        }
+    }
     Box( modifier = Modifier.fillMaxSize()) {
         Image(
             painter = painterResource(R.drawable.pexels_pixabay_268533),
@@ -90,6 +94,8 @@ import kotlinx.coroutines.coroutineScope
         ) { callback.requestLocationPermissions() }
         }
     ) {
+
+
         Column(
             modifier = Modifier
                 .fillMaxSize(),
@@ -210,43 +216,10 @@ import kotlinx.coroutines.coroutineScope
             }
 
             Box {
-                if (loginInProgress) {
-                    Box(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .background(Color.Black.copy(alpha = 0.5f))
-                            .then(Modifier.blur(4.dp))
-                    )
-                    CircularProgressIndicator(
-                        modifier = Modifier.align(Alignment.Center),
-                        color = Color.White
-                    )
-                }
-
                 Button(
                     shape = RoundedCornerShape(50),
                     onClick = {
-                        loginInProgress = true
-
-                        // Perform login asynchronously here
-                        // Once the login process is complete, set loginInProgress to false
-
-                        loginViewModel.login2(login, getHash(password)).let { loginState ->
-                            when (loginState) {
-                                is LoginViewModel.LoginState.Success -> navController.navigate("welcome")
-                                is LoginViewModel.LoginState.Error -> {
-                                    when (loginState.errorType) {
-                                        LoginErrorType.Api -> Toast.makeText(context, "API error", Toast.LENGTH_SHORT).show()
-                                        LoginErrorType.Http -> Toast.makeText(context, "Incorrect email or password", Toast.LENGTH_SHORT).show()
-                                        LoginErrorType.Connection -> Toast.makeText(context, "Check your internet connection", Toast.LENGTH_SHORT).show()
-                                    }
-                                }
-                                else -> {}
-                            }
-                        }
-
-                        // Once the login process is complete, set loginInProgress to false
-                        loginInProgress = false
+                        loginViewModel.login2(login, getHash(password))
                     },
                     colors = ButtonDefaults.buttonColors(backgroundColor = Color(0xff112D4E)),
                     modifier = Modifier
@@ -259,207 +232,65 @@ import kotlinx.coroutines.coroutineScope
                     )
                 }
             }
-
-
             Button(
                 colors = ButtonDefaults.buttonColors(backgroundColor = Color(0xff112D4E)),
                 shape = RoundedCornerShape(50),
                 onClick = {
-                    navController.navigate(Routes.Withdrawal3.name
-                    )
-                    Toast.makeText(context, "Still in development", Toast.LENGTH_SHORT).show()
+                    println(loading)
+                   loginViewModel.onLoadingChanged(true)
+                    Handler(Looper.getMainLooper()).postDelayed({
+                        // After the task is completed, set isLoading to false to hide the loading animation.
+                        loginViewModel.onLoadingChanged(false)
+
+                    }, 5000)
                 },
                 modifier = Modifier
                     .width(300.dp)
-
-
             ) {
-
                 Text(
                     text = "Sign Up",
                     color = Color.White,
                 )
             }
-        }
 
-
-    }
-}
-
-
-    }
-
-@Composable
-fun Rectangle() {
-    Box(
-        modifier = Modifier
-            .width(width = 213.dp)
-            .height(height = 54.dp)
-            .background(color = Color(0xffE5FBFE), RoundedCornerShape(8.dp))
-    ){
-        Image(
-            painter = painterResource(id = R.drawable.s2m_logo), // Replace with your logo resource
-            contentDescription = "Logo",
-            contentScale = ContentScale.Fit,
-            modifier = Modifier.fillMaxSize()
-        )
-    }
-}
-
-
-
-@Composable
-fun KeyboardButton(
-    text: String,
-    onClick: () -> Unit,
-    modifier: Modifier = Modifier
-) {
-    Button(
-        border= BorderStroke(1.dp,Color.Black),
-        colors=ButtonDefaults.buttonColors(backgroundColor = Color(0xffE5FBFE)),
-        onClick = onClick,
-        shape = CircleShape, // Use CircleShape for circular buttons
-        modifier = modifier
-            .size(50.dp)
-            .padding(4.dp)
-    ) {
-        Text(text,color=Color.Black)
-    }
-}
-
-@Composable
-fun CustomKeyboard1(
-    activeTextField:TextFieldType,
-    onKeyPressed: (String,TextFieldType) -> Unit,
-    modifier: Modifier = Modifier,
-    onBackspacePressed: () -> Unit,
-    onDeletePressed: () -> Unit
-) {
-     val shuffledNumbers = remember { (0..9).shuffled() }
-
-    val keyboardKeys = listOf(
-        shuffledNumbers.subList(0, 4),
-        shuffledNumbers.subList(4, 8),
-        shuffledNumbers.subList(8, 10)
-    )
-
-    Column(
-        modifier = modifier
-            .fillMaxWidth()
-            .wrapContentHeight()
-            .padding(horizontal = 60.dp, vertical = 16.dp) // Adjust the horizontal and vertical padding
-    ) {
-        keyboardKeys.forEachIndexed { rowIndex, row ->
-            Row(
-                horizontalArrangement = Arrangement.SpaceEvenly,
-                modifier = Modifier.fillMaxWidth()
-            ) {if (rowIndex == keyboardKeys.size - 1) {
-                Row(
-                    horizontalArrangement = Arrangement.Center,
-                    modifier = Modifier.width(200.dp)
-                ) {
-                    IconButton(onClick = {
-                        onDeletePressed()
-                    }) {
-                        Icon(Icons.Filled.Delete, contentDescription = "Delete", tint = Color(0xff112D4E))
-
-                    }
-                    row.forEach { key ->
-                        KeyboardButton(
-                            text = key.toString(),
-                            onClick = { onKeyPressed(key.toString(),activeTextField) },
-                           modifier = Modifier.weight(1f),
-                            // Adjust the weight for closer buttons
-                        )
-
-                    }
-
-                    IconButton(onClick = {
-                        onBackspacePressed()
-                    }) {
-                        Icon(Icons.Filled.Clear, contentDescription = "Clear", tint = Color(0xff112D4E))
-
+           /* if (loginState == LoginViewModel.LoginState.Success){
+                navController.navigate(Routes.Welcome.name)
+            }else if (loginState == LoginViewModel.LoginState.Error(LoginErrorType.Http)){
+                navController.navigate(Routes.Contact.name)
+            }*/
+            /*when (loginState) {
+                is LoginViewModel.LoginState.Success -> navController.navigate("welcome")
+                is LoginViewModel.LoginState.Error -> {
+                    val errorType = (loginState as LoginViewModel.LoginState.Error).errorType
+                    when (errorType) {
+                        LoginErrorType.Api -> Toast.makeText(context, "API error", Toast.LENGTH_SHORT).show()
+                        LoginErrorType.Http -> Toast.makeText(context, "Incorrect email or password", Toast.LENGTH_SHORT).show()
+                        LoginErrorType.Connection -> Toast.makeText(context, "Check your internet connection", Toast.LENGTH_SHORT).show()
                     }
                 }
-            } else {
-                row.forEach { key ->
-                    KeyboardButton(
-                        text = key.toString(),
-                        onClick = { onKeyPressed(key.toString(),activeTextField) }
-                    )
-                }
-            }
+                else -> Unit // Handle other states if needed
+            }*/
+            if (loading) {
+                AlertDialog(
+                    backgroundColor = Color.Transparent,
+                    onDismissRequest = { },
+                    properties = DialogProperties(dismissOnClickOutside = false),
+                    buttons = {},
+                    title = { },
+                    text = {
+                            LoadingAnimation(isLoading = loading)
+                    }
+                )
             }
         }
     }
-
 }
+ }
 enum class TextFieldType {
     USERNAME, PASSWORD
 }
 
-@Composable
-fun LoadingAnimation1(
-    circleColor: Color = Color.Magenta,
-    animationDelay: Int = 1000
-) {
 
-    // circle's scale state
-    var circleScale by remember {
-        mutableStateOf(0f)
-    }
 
-    // animation
-    val circleScaleAnimate = animateFloatAsState(
-        targetValue = circleScale,
-        animationSpec = infiniteRepeatable(
-            animation = tween(
-                durationMillis = animationDelay
-            )
-        )
-    )
 
-    // This is called when the app is launched
-    LaunchedEffect(Unit) {
-        circleScale = 1f
-    }
-
-    // animating circle
-    Box(
-        modifier = Modifier
-            .size(size = 64.dp)
-            .scale(scale = circleScaleAnimate.value)
-            .border(
-                width = 4.dp,
-                color = circleColor.copy(alpha = 1 - circleScaleAnimate.value),
-                shape = CircleShape
-            )
-    ) {
-
-    }
-}
-
-@Composable
-fun LoadingButton(
-    text: String,
-    onClick: () -> Unit,
-    isLoading: Boolean,
-) {
-    Button(
-        onClick = onClick,
-        modifier = Modifier.fillMaxWidth(),
-        enabled = !isLoading,
-    ) {
-        if (isLoading) {
-            CircularProgressIndicator(
-                modifier = Modifier
-                    .size(24.dp)
-                    .padding(4.dp),
-                color = MaterialTheme.colors.primary,
-            )
-        } else {
-            Text(text)
-        }
-    }
-}
 

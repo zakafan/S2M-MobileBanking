@@ -77,7 +77,7 @@ class MainActivity : ComponentActivity(),LocationPermissionCallback {
                     color = MaterialTheme.colors.background
                 ) {
                     val alert by alertsViewModel.alert.collectAsState()
-                    val locationPermissionCallback = this@MainActivity
+                   // val locationPermissionCallback = this@MainActivity
                     val navController = rememberNavController( )
                     SetupNavGraph(navController = navController, callback = this@MainActivity)
                     NavHost(navController = navController, startDestination = Routes.Login.name ){

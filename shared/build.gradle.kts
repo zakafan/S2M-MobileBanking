@@ -29,16 +29,15 @@ kotlin {
         val commonMain by getting{
             dependencies {
 
-                implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.4")
+                implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.1")
                 implementation("io.ktor:ktor-client-core:$ktorVersion")
                 implementation("io.ktor:ktor-client-content-negotiation:$ktorVersion")
                 implementation("io.ktor:ktor-serialization-kotlinx-json:$ktorVersion")
                 api("dev.icerock.moko:mvvm-core:$mokoMvvmVersion")
                 api("dev.icerock.moko:mvvm-flow:$mokoMvvmVersion")
                 implementation("com.russhwolf:multiplatform-settings:0.8.1")
-                implementation("androidx.compose.runtime:runtime:1.4.3")
-                implementation ("com.google.accompanist:accompanist-pager:0.22.0-rc")
-                implementation ("io.coil-kt:coil-compose:1.4.0")
+
+                
 
             }
         }
@@ -52,7 +51,7 @@ kotlin {
             dependencies {
                 api("dev.icerock.moko:mvvm-flow-compose:$mokoMvvmVersion")
                 implementation("io.ktor:ktor-client-android:$ktorVersion")
-                implementation ("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.6.4")
+                implementation ("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.1")
                 implementation ("com.google.accompanist:accompanist-pager:0.22.0-rc")
                 implementation ("io.coil-kt:coil-compose:1.4.0")
 

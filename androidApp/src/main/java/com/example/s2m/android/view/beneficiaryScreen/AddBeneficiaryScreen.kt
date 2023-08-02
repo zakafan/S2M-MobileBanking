@@ -26,8 +26,7 @@ import androidx.navigation.NavController
 import com.example.s2m.android.util.Routes
 import com.example.s2m.android.util.backgroundColor
 import com.example.s2m.android.util.topBarColor
-import com.example.s2m.android.view.AutoSlidingCarousel
-import com.example.s2m.android.view.WalletCard
+
 import com.example.s2m.viewmodel.BeneficiaryViewModel
 
 
@@ -60,7 +59,7 @@ fun AddBeneficiaryScreen(
                             ) {
                             Icon(
                                 Icons.Filled.ArrowBack,
-                                contentDescription = "Bck",
+                                contentDescription = "Back",
                                 tint = Color.White,
                             ) }
 

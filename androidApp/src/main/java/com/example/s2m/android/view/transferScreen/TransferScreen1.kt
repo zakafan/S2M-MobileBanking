@@ -49,12 +49,9 @@ fun TransferScreen1(
     val amount:String   by transferViewModel.amount.collectAsState()
     val memo :String    by transferViewModel.memo.collectAsState()
     val user: User by loginViewModel.user.collectAsState()
-    val scaffoldState = rememberScaffoldState()
-    val coroutineScope = rememberCoroutineScope()
     var showDialog by remember { mutableStateOf(false) }
     var showDialog2 by remember { mutableStateOf(false) }
     var selectedOption by remember { mutableStateOf("Select beneficiary") }
-   // val options = listOf("Option 1", "Option 2", "Option 3")
     val beneficiaryList = user.responseLogin?.beneficiaryList
 
 
@@ -115,7 +112,7 @@ fun TransferScreen1(
                     color=Color.Black,
                 )
             }
-            user.responseLogin?.let {
+           user.responseLogin?.let {
                 val wallets = it.equipmentList
 
                     AutoSlidingCarousel(
@@ -259,7 +256,7 @@ fun TransferScreen1(
                                    },
                                    modifier = Modifier
                                        .fillMaxWidth()
-                                       .padding(vertical =2.dp)
+                                       .padding(vertical = 2.dp)
                                ) {
                                    Text(text = beneficiary.name, color = Color.Black)
                                }
@@ -270,7 +267,7 @@ fun TransferScreen1(
                                     topBarColor)),
                                 shape = RoundedCornerShape(50),
                                 onClick = {
-                                    navController.navigate(Routes.AddBeneficiary.name)
+                                    navController.navigate(Routes.Beneficiary.name)
                                 },
                                 modifier = Modifier
                                     .padding(start=85.dp)
@@ -288,32 +285,9 @@ fun TransferScreen1(
                 )
             }
             if (showDialog2) {
-                AlertDialog(
-                    backgroundColor = Color(backgroundColor),
-                    modifier = Modifier.height(150.dp).width(300.dp),
-
-                    onDismissRequest = { showDialog2 = false },
-                    title = {
-                        Text(text = "Fill the necessary fields",modifier=Modifier.padding(start=40.dp,top=20.dp),
-                            fontWeight = FontWeight.Bold)
-                    },
-                    buttons = {
-                        Column {
-
-                            Button(
-                                colors = ButtonDefaults.buttonColors(backgroundColor = Color(topBarColor)),
-                                shape = RoundedCornerShape(50),
-                                onClick = { showDialog2 = false },
-                                modifier = Modifier.padding(start=50.dp,top=60.dp).width(200.dp)
-                            ) {
-                                Text(
-                                    text = "OK",
-                                    color = Color.White,
-                                )
-                            }
-                        }
-                    }
-                )
+                MyAlertDialog(text = "Fill the necessary fields", show =showDialog2 ) {
+                    showDialog2 = false
+                }
             }
         }
         }

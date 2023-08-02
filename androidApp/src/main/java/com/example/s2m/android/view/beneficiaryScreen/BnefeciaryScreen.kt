@@ -44,11 +44,9 @@ fun BeneficiaryScreen(
     val scaffoldState = rememberScaffoldState()
     val coroutineScope = rememberCoroutineScope()
 
-
     val beneficiaryList = user.responseLogin?.beneficiaryList
 
     Scaffold(
-
         backgroundColor = Color(backgroundColor),
         topBar = {
             TopAppBar(
@@ -92,8 +90,6 @@ fun BeneficiaryScreen(
             BottomNav(navController = navController,"beneficiary")
         }
     ) {
-
-
         if (beneficiaryList != null) {
             if (beneficiaryList.isNotEmpty()) {
                 LazyColumn(
@@ -182,11 +178,6 @@ fun BeneficiaryScreen(
                 )
             }
         }
-
-
-
-
     }
-
 }
 

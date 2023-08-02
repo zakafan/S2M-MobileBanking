@@ -29,19 +29,13 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
-import com.example.s2m.android.R
 import com.example.s2m.android.getHash
 import com.example.s2m.android.util.*
-import com.example.s2m.android.view.AutoSlidingCarousel
-import com.example.s2m.android.view.WalletCard
 import com.example.s2m.model.User
 import com.example.s2m.util.SendMoneyErrorType
-import com.example.s2m.util.TransferErrorType
 import com.example.s2m.viewmodel.LoginViewModel
 import com.example.s2m.viewmodel.LogoutViewModel
 import com.example.s2m.viewmodel.SendMoneyViewModel
-import com.example.s2m.viewmodel.TransferViewModel
-import kotlinx.coroutines.launch
 
 @SuppressLint("UnusedMaterialScaffoldPaddingParameter")
 @Composable

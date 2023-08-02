@@ -26,7 +26,7 @@ import androidx.navigation.NavController
 import com.example.s2m.android.util.backgroundColor
 import com.example.s2m.android.util.topBarColor
 import com.example.s2m.viewmodel.ContactUsViewModel
-import com.google.relay.compose.BoxScopeInstanceImpl.align
+
 
 @SuppressLint("UnusedMaterialScaffoldPaddingParameter")
 @Composable

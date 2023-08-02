@@ -7,6 +7,8 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -14,13 +16,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
-import com.example.s2m.android.R
 import com.example.s2m.android.util.BottomNav
 import com.example.s2m.android.util.Routes
 import com.example.s2m.android.util.backgroundColor
@@ -40,36 +40,48 @@ fun RecapAddBeneficiaryScreen(
     val context = LocalContext.current
 
     Scaffold(
-
         backgroundColor = Color(backgroundColor),
         topBar = {
             Surface(
-
                 modifier = Modifier.fillMaxWidth(),
-
                 ) {
                 TopAppBar(
                     backgroundColor = Color(topBarColor),
-                    title = {
-                        Text(text = "Add beneficiary", color = Color.White)
+                    title =  {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            IconButton(
+                                onClick = {navController.popBackStack()
+
+                                },
+
+                                ) {
+                                Icon(
+                                    Icons.Filled.ArrowBack,
+                                    contentDescription = "Back",
+                                    tint = Color.White,
+                                ) }
+
+                            Text(
+                                text = "Add beneficiary", modifier = Modifier
+                                    .weight(1f),
+                                color= Color.White
+                            ) }
                     }
                 )
             }
         },
-
         bottomBar = {
             BottomNav(navController = navController,"beneficiary")
         }
     ) {
-
         Column(
             modifier = Modifier
                 .padding(horizontal = 16.dp)
                 .verticalScroll(rememberScrollState())
         ) {
-
             Spacer(modifier = Modifier.height(100.dp))
-
             Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
                 Text(
                     text = "Beneficiary Wallet",
@@ -97,12 +109,9 @@ fun RecapAddBeneficiaryScreen(
                 Column(modifier = Modifier.padding(16.dp)) {
                     Text("Name                  : ${beneficiaryViewModel.beneficiaryName.value} ", color = Color.Black)
                     Text("Phone Number  : +212${beneficiaryViewModel.phone.value} ", color = Color.Black)
-
                 }
             }
-
             Spacer(modifier = Modifier.height(20.dp))
-
             Box(
                 modifier = Modifier
                     .width(500.dp)
@@ -119,7 +128,6 @@ fun RecapAddBeneficiaryScreen(
                         }else if(beneficiaryViewModel.addBeneficiary(name,phone)==BeneficiaryViewModel.AddBeneficiaryState.Error(AddBeneficiaryErrorType.InvalidPhone)){
                             Toast.makeText(context,"Invalid Phone Number !!",Toast.LENGTH_SHORT).show()
                         }
-
                     },
                     modifier = Modifier
                         .width(500.dp)
@@ -133,9 +141,6 @@ fun RecapAddBeneficiaryScreen(
                 }
             }
             Spacer(modifier = Modifier.height(10.dp))
-
-
         }
+}}
 
-}
-}

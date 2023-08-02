@@ -1,7 +1,9 @@
 package com.example.s2m.android.util
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ExitToApp
@@ -11,16 +13,16 @@ import androidx.compose.material.icons.filled.Person
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
-import com.example.s2m.android.view.UserInfoDrawer
+import com.example.s2m.android.R
 import com.example.s2m.model.User
-import com.example.s2m.repository.AlertRepository
-import com.example.s2m.repository.LoginRepository
-import com.example.s2m.repository.LogoutRepository
-import com.example.s2m.viewmodel.AlertsViewModel
 import com.example.s2m.viewmodel.LoginViewModel
 import com.example.s2m.viewmodel.LogoutViewModel
 
@@ -133,4 +135,50 @@ fun DrawerContent(user: User, loginViewModel: LoginViewModel, navController: Nav
     }
 
 
+}
+
+@Composable
+fun UserInfoDrawer(
+    user: User,
+    modifier: Modifier = Modifier
+) {
+    Column(
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(16.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        // User Info Placeholder Image
+
+        Image(
+            painterResource(id = R.drawable.s2m_logo),
+            contentDescription = null,
+            modifier = Modifier
+                .size(60.dp)
+                .clip(CircleShape),
+
+            )
+
+        Spacer(modifier = Modifier.height(14.dp))
+
+        // Login Text
+        Text(
+            text = user.responseLogin?.lastName ?: "",
+            fontSize = 20.sp,
+            fontWeight = FontWeight.Bold,
+            textAlign = TextAlign.Center,
+            color = Color.White
+        )
+
+        Spacer(modifier = Modifier.height(8.dp))
+
+        // Phone Number Text
+        Text(
+            text = user.responseLogin?.phone ?: "",
+            fontSize = 16.sp,
+            fontWeight = FontWeight.Normal,
+            textAlign = TextAlign.Center,
+            color = Color.White
+        )
+    }
 }

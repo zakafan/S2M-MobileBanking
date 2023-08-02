@@ -22,12 +22,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
-import com.example.s2m.android.util.BottomNav
-import com.example.s2m.android.util.Routes
-import com.example.s2m.android.util.backgroundColor
-import com.example.s2m.android.util.topBarColor
-import com.example.s2m.android.view.AutoSlidingCarousel
-import com.example.s2m.android.view.WalletCard
+import com.example.s2m.android.util.*
 import com.example.s2m.model.User
 import com.example.s2m.viewmodel.LoginViewModel
 import com.example.s2m.viewmodel.MerchantPaymentViewModel

@@ -6,10 +6,12 @@ import com.example.s2m.repository.LoginRepository
 import com.example.s2m.util.LoginErrorType
 import dev.icerock.moko.mvvm.viewmodel.ViewModel
 import io.ktor.utils.io.errors.*
-import kotlinx.coroutines.*
+import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.launch
+
 
 class LoginViewModel(private val repository: LoginRepository):ViewModel() {
 
@@ -37,6 +39,10 @@ class LoginViewModel(private val repository: LoginRepository):ViewModel() {
         _login.value = login
     }
 
+    fun onLoadingChanged(bool:Boolean){
+        _isLoading.value = bool
+    }
+
     fun onPasswordTextChanged(password: String) {
         _password.value = password
     }
@@ -49,25 +55,21 @@ class LoginViewModel(private val repository: LoginRepository):ViewModel() {
 
     }
 
-    fun login2(username: String, pass: String): LoginState {
+    fun login2(username: String, pass: String) {
         _isLoading.value = true
         try {
-
-            runBlocking {
-
+            viewModelScope.launch() {
                 val response = async {
                     repository.login(username, pass)
                 }
-
                  _loginState.value =
                      if (response.await()?.responseCode == "000") {
                          _user.value.responseLogin =response.await()?.responseLogin
                          _token.value.accessToken=response.await()?.accessToken
                          println(token.value)
                          _isLoading.value = false
-                         LoginState.Success
+                          LoginState.Success
                      } else {
-
                          val errorType: LoginErrorType = if (response.await()?.responseCode !== "000") {
                              _isLoading.value = false
                              LoginErrorType.Http
@@ -83,12 +85,36 @@ class LoginViewModel(private val repository: LoginRepository):ViewModel() {
         }catch (e:IOException){
             _loginState.value = LoginState.Error(LoginErrorType.Connection)
         }
-        _isLoading.value=false
-        return _loginState.value
+
     }
+    /*fun login2(username: String, pass: String) {
+        viewModelScope.launch {
+            _isLoading.value = true
+            try {
+                val response = withContext(viewModelScope.coroutineContext) {
+                    repository.login(username, pass)
+                }
 
+                _loginState.value = if (response?.responseCode == "000") {
+                    _user.value.responseLogin = response.responseLogin
+                    _token.value.accessToken = response.accessToken
+                    LoginState.Success
+                } else {
+                    val errorType: LoginErrorType = if (response?.responseCode != "000") {
+                        LoginErrorType.Http
+                    } else {
+                        LoginErrorType.Api
+                    }
+                    LoginState.Error(errorType)
+                }
+            } catch (e: IOException) {
+                _loginState.value = LoginState.Error(LoginErrorType.Connection)
+            } finally {
+                _isLoading.value = false
 
-
+            }
+        }
+    }*/
     sealed class LoginState {
         object Idle : LoginState()
         object  Success : LoginState()

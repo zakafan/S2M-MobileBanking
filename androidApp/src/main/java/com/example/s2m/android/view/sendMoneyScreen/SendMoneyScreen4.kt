@@ -48,10 +48,8 @@ fun SendMoneyScreen4(
 
     val user: User by loginViewModel.user.collectAsState()
     val currentDateTime = LocalDateTime.now()
-
 // Define the desired date and time format
     val formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm")
-
 // Format the current date and time
     val formattedDateTime = currentDateTime.format(formatter)
 

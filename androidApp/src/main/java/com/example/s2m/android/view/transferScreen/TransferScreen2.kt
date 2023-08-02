@@ -1,5 +1,6 @@
 package com.example.s2m.android.view.transferScreen
 
+import LoadingAnimation
 import android.annotation.SuppressLint
 import android.widget.Toast
 import androidx.compose.foundation.*
@@ -27,20 +28,18 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.DialogProperties
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.s2m.android.R
 import com.example.s2m.android.getHash
 import com.example.s2m.android.util.*
-import com.example.s2m.android.view.AutoSlidingCarousel
-import com.example.s2m.android.view.WalletCard
 import com.example.s2m.model.User
 import com.example.s2m.util.TransferErrorType
 import com.example.s2m.viewmodel.LoginViewModel
 import com.example.s2m.viewmodel.LogoutViewModel
 import com.example.s2m.viewmodel.TransferViewModel
 import com.google.accompanist.pager.ExperimentalPagerApi
-import kotlinx.coroutines.launch
 
 @SuppressLint("UnusedMaterialScaffoldPaddingParameter", "SuspiciousIndentation")
 @OptIn(ExperimentalPagerApi::class)
@@ -53,9 +52,26 @@ fun TransferScreen2(
 ){
 
     val user: User by loginViewModel.user.collectAsState()
+    val transferState by transferViewModel.transferState.collectAsState()
     var showDialog1 by remember { mutableStateOf(false) }
     var otpValue by remember{ mutableStateOf("") }
+    val loading by transferViewModel.isLoading.collectAsState()
     val context = LocalContext.current
+
+    LaunchedEffect(transferState){
+        when(transferState){
+            is TransferViewModel.TransferState.Success -> navController.navigate(Routes.Transfer3.name)
+            is TransferViewModel.TransferState.Error -> {
+                val errorType = (transferState as TransferViewModel.TransferState.Error).errorType
+                when (errorType) {
+                    TransferErrorType.PIN -> showDialog1 = true
+
+                    else -> {}
+                }
+            }
+            else -> {}
+        }
+    }
 
     Scaffold(
 
@@ -123,11 +139,9 @@ fun TransferScreen2(
                                 modifier = Modifier
                                     .padding(30.dp)
                                     .fillMaxSize()
-
                             )
                         }
                     )
-
             }
             Spacer(modifier = Modifier.height(5.dp))
             Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
@@ -249,21 +263,8 @@ fun TransferScreen2(
                    shape = RoundedCornerShape(50),
                    onClick = {
                        transferViewModel.onPinChanged(otpValue)
-                       if(transferViewModel.transfer(transferViewModel.amount.value,transferViewModel.memo.value,transferViewModel.toPhone.value,
-                               getHash(transferViewModel.pin.value))==TransferViewModel.TransferState.Success){
-                           navController.navigate(Routes.Transfer3.name)
-                       }else if(transferViewModel.transfer(transferViewModel.amount.value,transferViewModel.memo.value,transferViewModel.toPhone.value,
-                               getHash(transferViewModel.pin.value))==TransferViewModel.TransferState.Error(TransferErrorType.MinAmount)){
-                           Toast.makeText(context,"The amount is low. Please enter another amount",Toast.LENGTH_SHORT).show()
-                       }else if(transferViewModel.transfer(transferViewModel.amount.value,transferViewModel.memo.value,transferViewModel.toPhone.value,
-                               getHash(transferViewModel.pin.value))==TransferViewModel.TransferState.Error(TransferErrorType.PIN)){
-                           showDialog1 = true
-                       }else if (transferViewModel.transfer(transferViewModel.amount.value,transferViewModel.memo.value,transferViewModel.toPhone.value,
-                               getHash(transferViewModel.pin.value))==TransferViewModel.TransferState.Error(TransferErrorType.MaxTransactions)){
-                           Toast.makeText(context,"the number of maximum transactions is reached !!",Toast.LENGTH_SHORT).show()
-                       }
-
-
+                       transferViewModel.transfer(transferViewModel.amount.value,transferViewModel.memo.value,transferViewModel.toPhone.value,
+                           getHash(transferViewModel.pin.value))
                    },
                    modifier = Modifier
                        .width(500.dp)
@@ -275,44 +276,23 @@ fun TransferScreen2(
                    )
                }
            }
-
-
-
-
         }
-        if(showDialog1){
+        if (loading) {
             AlertDialog(
-                modifier = Modifier.height(150.dp).width(300.dp),
-                backgroundColor = Color(backgroundColor),
-
-                onDismissRequest = { showDialog1 = false },
-                title = {
-                    Text(text = "Invalid PIN!!",modifier=Modifier.padding(start=80.dp,top=20.dp),
-                        fontWeight = FontWeight.Bold)
-                },
-                buttons = {
-                    Column {
-                        Button(
-                            colors = ButtonDefaults.buttonColors(backgroundColor = Color(
-                                topBarColor)),
-                            shape = RoundedCornerShape(50),
-                            onClick = {
-                                showDialog1 = false
-                            },
-                            modifier = Modifier
-                                .padding(start=50.dp,top=60.dp).width(200.dp)
-
-
-                        ) {
-
-                            Text(
-                                text = "OK",
-                                color = Color.White,
-                            )
-                        }
-                    }
+                backgroundColor = Color.Transparent,
+                onDismissRequest = { },
+                properties = DialogProperties(dismissOnClickOutside = false),
+                buttons = {},
+                title = { },
+                text = {
+                    LoadingAnimation(isLoading = loading)
                 }
             )
+        }
+        if(showDialog1){
+            MyAlertDialog(text = "Invalid PIN!!", show = showDialog1) {
+                showDialog1 = false
+            }
         }
     }
 
