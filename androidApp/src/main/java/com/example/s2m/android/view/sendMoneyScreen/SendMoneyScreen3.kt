@@ -1,5 +1,6 @@
 package com.example.s2m.android.view.sendMoneyScreen
 
+import LoadingAnimation
 import android.annotation.SuppressLint
 import android.widget.Toast
 import androidx.compose.foundation.*
@@ -27,15 +28,18 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.DialogProperties
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.s2m.android.getHash
 import com.example.s2m.android.util.*
 import com.example.s2m.model.User
 import com.example.s2m.util.SendMoneyErrorType
+import com.example.s2m.util.TransferErrorType
 import com.example.s2m.viewmodel.LoginViewModel
 import com.example.s2m.viewmodel.LogoutViewModel
 import com.example.s2m.viewmodel.SendMoneyViewModel
+import com.example.s2m.viewmodel.TransferViewModel
 
 @SuppressLint("UnusedMaterialScaffoldPaddingParameter")
 @Composable
@@ -47,9 +51,28 @@ fun SendMoneyScreen3(
 ){
 
     val user: User by loginViewModel.user.collectAsState()
+    val sendMoneyState by sendMoneyViewModel.sendMoneyState.collectAsState( )
     var showDialog1 by remember { mutableStateOf(false) }
     var otpValue by remember{ mutableStateOf("") }
-    val context = LocalContext.current
+    val loading by sendMoneyViewModel.isLoading.collectAsState()
+
+    LaunchedEffect(sendMoneyState){
+        when(sendMoneyState){
+            is SendMoneyViewModel.SendMoneyState.Success -> navController.navigate(Routes.Send4.name)
+            is SendMoneyViewModel.SendMoneyState.Error -> {
+                val errorType = (sendMoneyState as SendMoneyViewModel.SendMoneyState.Error).errorType
+                when (errorType) {
+                    SendMoneyErrorType.PIN -> showDialog1 = true
+                    SendMoneyErrorType.INVALIDPHONE -> {}
+                    SendMoneyErrorType.ACCOUNTNOTFOUND -> {}
+                    SendMoneyErrorType.MAXTRANSACTION -> {}
+                    SendMoneyErrorType.MINAMOUNT -> {}
+                    else -> {}
+                }
+            }
+            else -> {}
+        }
+    }
 
     Scaffold(
 
@@ -162,37 +185,9 @@ fun SendMoneyScreen3(
                     shape = RoundedCornerShape(50),
                     onClick = {
                         sendMoneyViewModel.onPinChanged(otpValue)
-                        if(sendMoneyViewModel.sendMoney(sendMoneyViewModel.amount.value,sendMoneyViewModel.memo.value,sendMoneyViewModel.toPhone.value,
-                                getHash(sendMoneyViewModel.pin.value),sendMoneyViewModel.beneficiaryName.value,sendMoneyViewModel.identityNumber.value,sendMoneyViewModel.notify.value,
-                                getHash(sendMoneyViewModel.secretCode.value )
-                            )== SendMoneyViewModel.SendMoneyState.Success){
-                           navController.navigate(Routes.Send4.name)
-                        }else if(sendMoneyViewModel.sendMoney(sendMoneyViewModel.amount.value,sendMoneyViewModel.memo.value,sendMoneyViewModel.toPhone.value,
-                                getHash(sendMoneyViewModel.pin.value),sendMoneyViewModel.beneficiaryName.value,sendMoneyViewModel.identityNumber.value,sendMoneyViewModel.notify.value,
-                                getHash(sendMoneyViewModel.secretCode.value )
-                            )== SendMoneyViewModel.SendMoneyState.Error(SendMoneyErrorType.MINAMOUNT)){
-                            Toast.makeText(context,"The amount is low. Please enter another amount",
-                                Toast.LENGTH_SHORT).show()
-                        }else if(sendMoneyViewModel.sendMoney(sendMoneyViewModel.amount.value,sendMoneyViewModel.memo.value,sendMoneyViewModel.toPhone.value,
-                                getHash(sendMoneyViewModel.pin.value),sendMoneyViewModel.beneficiaryName.value,sendMoneyViewModel.identityNumber.value,sendMoneyViewModel.notify.value,
-                                getHash(sendMoneyViewModel.secretCode.value )
-                            )== SendMoneyViewModel.SendMoneyState.Error(SendMoneyErrorType.PIN)){
-                            showDialog1 = true
-                        }else if (sendMoneyViewModel.sendMoney(sendMoneyViewModel.amount.value,sendMoneyViewModel.memo.value,sendMoneyViewModel.toPhone.value,
-                                getHash(sendMoneyViewModel.pin.value),sendMoneyViewModel.beneficiaryName.value,sendMoneyViewModel.identityNumber.value,sendMoneyViewModel.notify.value,
-                                getHash(sendMoneyViewModel.secretCode.value )
-                            )== SendMoneyViewModel.SendMoneyState.Error(SendMoneyErrorType.MAXTRANSACTION)){
-                            Toast.makeText(context,"the number of maximum transactions is reached !!",
-                                Toast.LENGTH_SHORT).show()
-                        }else if (sendMoneyViewModel.sendMoney(sendMoneyViewModel.amount.value,sendMoneyViewModel.memo.value,sendMoneyViewModel.toPhone.value,
-                                getHash(sendMoneyViewModel.pin.value),sendMoneyViewModel.beneficiaryName.value,sendMoneyViewModel.identityNumber.value,sendMoneyViewModel.notify.value,
-                                getHash(sendMoneyViewModel.secretCode.value )
-                            )== SendMoneyViewModel.SendMoneyState.Error(SendMoneyErrorType.INVALIDPHONE)){
-                            Toast.makeText(context,"Invalid phone number !!",
-                                Toast.LENGTH_SHORT).show()
-                        }
-
-
+                        sendMoneyViewModel.sendMoney(sendMoneyViewModel.amount.value,sendMoneyViewModel.memo.value,sendMoneyViewModel.toPhone.value,
+                            getHash(sendMoneyViewModel.pin.value),sendMoneyViewModel.beneficiaryName.value,sendMoneyViewModel.identityNumber.value,sendMoneyViewModel.notify.value,
+                            getHash(sendMoneyViewModel.secretCode.value ))
                     },
                     modifier = Modifier
                         .width(500.dp)
@@ -211,7 +206,9 @@ fun SendMoneyScreen3(
         }
         if(showDialog1){
             AlertDialog(
-                modifier = Modifier.height(150.dp).width(300.dp),
+                modifier = Modifier
+                    .height(150.dp)
+                    .width(300.dp),
                 backgroundColor = Color(backgroundColor),
 
                 onDismissRequest = { showDialog1 = false },
@@ -229,7 +226,8 @@ fun SendMoneyScreen3(
                                 showDialog1 = false
                             },
                             modifier = Modifier
-                                .padding(start=50.dp,top=60.dp).width(200.dp)
+                                .padding(start = 50.dp, top = 60.dp)
+                                .width(200.dp)
 
 
                         ) {
@@ -239,7 +237,20 @@ fun SendMoneyScreen3(
                                 color = Color.White,
                             )
                         }
+
                     }
+                }
+            )
+        }
+        if (loading){
+            AlertDialog(
+                backgroundColor = Color.Transparent,
+                onDismissRequest = { },
+                properties = DialogProperties(dismissOnClickOutside = false),
+                buttons = {},
+                title = { },
+                text = {
+                    LoadingAnimation(isLoading = loading)
                 }
             )
         }

@@ -1,5 +1,6 @@
 package com.example.s2m.android.view
 
+import LoadingAnimation
 import android.annotation.SuppressLint
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -14,6 +15,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.DialogProperties
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.s2m.android.R
@@ -39,7 +41,7 @@ fun WelcomeScreen(
 
     //val read = alertsViewModel.getUnreadedAlert()
     val unreadNotificationCount by alertsViewModel.unreadNotificationCount.collectAsState()
-
+    val load by logoutViewModel.isLoading.collectAsState()
     val user: User by loginViewModel.user.collectAsState()
     val scaffoldState = rememberScaffoldState()
     val coroutineScope = rememberCoroutineScope()
@@ -208,6 +210,18 @@ fun WelcomeScreen(
                     }
                 }
             }
+        }
+        if (load) {
+            AlertDialog(
+                backgroundColor = Color.Transparent,
+                onDismissRequest = { },
+                properties = DialogProperties(dismissOnClickOutside = false),
+                buttons = {},
+                title = { },
+                text = {
+                    LoadingAnimation(isLoading = load)
+                }
+            )
         }
         }
     }

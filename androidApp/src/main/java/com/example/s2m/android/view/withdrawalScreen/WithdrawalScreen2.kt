@@ -1,5 +1,6 @@
 package com.example.s2m.android.view.withdrawalScreen
 
+import LoadingAnimation
 import android.annotation.SuppressLint
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
@@ -22,12 +23,15 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.DialogProperties
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.s2m.android.getHash
 import com.example.s2m.android.util.*
 import com.example.s2m.model.User
+import com.example.s2m.util.SendMoneyErrorType
 import com.example.s2m.viewmodel.LoginViewModel
+import com.example.s2m.viewmodel.MerchantPaymentViewModel
 import com.example.s2m.viewmodel.WithdrawalViewModel
 import com.google.accompanist.pager.ExperimentalPagerApi
 
@@ -43,7 +47,26 @@ fun WithdrawalScreen2(
     val user: User by loginViewModel.user.collectAsState()
     var showDialog1 by remember { mutableStateOf(false) }
     var otpValue by remember{ mutableStateOf("") }
+    val loading by withdrawalViewModel.isLoading.collectAsState()
+    val withdrawalState by withdrawalViewModel.withdrawalState.collectAsState()
 
+    LaunchedEffect(withdrawalState){
+        when(withdrawalState){
+            is WithdrawalViewModel.WithdrawalState.Success -> navController.navigate(Routes.Transfer3.name)
+            is WithdrawalViewModel.WithdrawalState.Error -> {
+                val errorType = (withdrawalState as WithdrawalViewModel.WithdrawalState.Error).errorType
+                when (errorType) {
+                    SendMoneyErrorType.PIN -> showDialog1 = true
+                    SendMoneyErrorType.INVALIDPHONE -> {}
+                    SendMoneyErrorType.ACCOUNTNOTFOUND -> {}
+                    SendMoneyErrorType.MAXTRANSACTION -> {}
+                    SendMoneyErrorType.MINAMOUNT -> {}
+                    else -> {}
+                }
+            }
+            else -> {}
+        }
+    }
     Scaffold(
 
         backgroundColor = Color(backgroundColor),
@@ -225,15 +248,9 @@ fun WithdrawalScreen2(
                     shape = RoundedCornerShape(50),
                     onClick = {
                         withdrawalViewModel.onPinChanged(otpValue)
-                        if(withdrawalViewModel.withdrawl(withdrawalViewModel.amount.value,withdrawalViewModel.memo.value,withdrawalViewModel.toPhone.value,
-                                getHash(withdrawalViewModel.pin.value,),"NO"
-                            )== WithdrawalViewModel.WithdrawalState.Success){
-                            navController.navigate(Routes.Withdrawal3.name)
-                        }else if(withdrawalViewModel.withdrawl(withdrawalViewModel.amount.value,withdrawalViewModel.memo.value,withdrawalViewModel.toPhone.value,
-                                getHash(withdrawalViewModel.pin.value,),"NO"
-                            )== WithdrawalViewModel.WithdrawalState.Success){
-
-                        }
+                        withdrawalViewModel.withdrawl(withdrawalViewModel.amount.value,withdrawalViewModel.memo.value,withdrawalViewModel.toPhone.value,
+                            getHash(withdrawalViewModel.pin.value,),"NO"
+                        )
 
 
                     },
@@ -288,6 +305,18 @@ fun WithdrawalScreen2(
                             )
                         }
                     }
+                }
+            )
+        }
+        if (loading) {
+            AlertDialog(
+                backgroundColor = Color.Transparent,
+                onDismissRequest = { },
+                properties = DialogProperties(dismissOnClickOutside = false),
+                buttons = {},
+                title = { },
+                text = {
+                    LoadingAnimation(isLoading = loading)
                 }
             )
         }

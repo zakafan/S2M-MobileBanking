@@ -40,6 +40,7 @@ android {
 }
 
 dependencies {
+    val camerax_version = "1.2.3"
     implementation(project(":shared"))
     implementation("androidx.compose.ui:ui:1.4.3")
     implementation("androidx.compose.ui:ui-tooling:1.4.3")
@@ -61,6 +62,11 @@ dependencies {
     implementation ("com.google.android.gms:play-services-location:18.0.0")
     implementation ("org.jetbrains.kotlinx:kotlinx-coroutines-play-services:1.5.0")
 
+    implementation("androidx.camera:camera-camera2:${camerax_version}")
+    implementation("androidx.camera:camera-lifecycle:${camerax_version}")
+    implementation("androidx.camera:camera-view:${camerax_version}")
+
+    implementation ("com.journeyapps:zxing-android-embedded:4.3.0")
 
 
 }

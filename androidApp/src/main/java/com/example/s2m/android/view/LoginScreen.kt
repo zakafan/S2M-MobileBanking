@@ -8,7 +8,6 @@ import android.widget.Toast
 import androidx.activity.compose.LocalOnBackPressedDispatcherOwner
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -19,7 +18,6 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.blur
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
@@ -42,8 +40,7 @@ import com.example.s2m.android.util.*
 import com.example.s2m.util.LoginErrorType
 import com.example.s2m.viewmodel.ForexViewModel
 import com.example.s2m.viewmodel.LoginViewModel
-import kotlinx.coroutines.awaitAll
-import kotlinx.coroutines.delay
+
 
 
 @OptIn(ExperimentalComposeUiApi::class)
@@ -252,7 +249,6 @@ import kotlinx.coroutines.delay
                     color = Color.White,
                 )
             }
-
            /* if (loginState == LoginViewModel.LoginState.Success){
                 navController.navigate(Routes.Welcome.name)
             }else if (loginState == LoginViewModel.LoginState.Error(LoginErrorType.Http)){

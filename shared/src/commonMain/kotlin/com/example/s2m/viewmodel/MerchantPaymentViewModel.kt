@@ -7,6 +7,7 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 
 class MerchantPaymentViewModel(private val repository: MerchantPaymentRepository):ViewModel() {
@@ -26,12 +27,16 @@ class MerchantPaymentViewModel(private val repository: MerchantPaymentRepository
     private val _qrIndicator: MutableStateFlow<String> = MutableStateFlow("")
     val qrIndicator: StateFlow<String> = _qrIndicator.asStateFlow()
 
+    private val _isLoading: MutableStateFlow<Boolean> = MutableStateFlow(false)
+    val isLoading: StateFlow<Boolean> = _isLoading.asStateFlow()
+
     private val _transactionN: MutableStateFlow<String> = MutableStateFlow("")
     val transactionN: StateFlow<String> = _transactionN.asStateFlow()
 
     private val _merchantPaymentState: MutableStateFlow<MerchantPaymentState> = MutableStateFlow(
         MerchantPaymentState.Idle
     )
+    val merchantPaymentState : StateFlow<MerchantPaymentState> = _merchantPaymentState.asStateFlow()
 
     fun onAmountChanged(amount:String){
         _amount.value=amount
@@ -59,29 +64,35 @@ class MerchantPaymentViewModel(private val repository: MerchantPaymentRepository
 
     }
 
-    fun sendPayment(amount:String,memo:String,toPhone:String,pin:String,qrIndicator:String):MerchantPaymentState{
+    fun sendPayment(amount:String,memo:String,toPhone:String,pin:String,qrIndicator:String){
 
-        runBlocking{
+        _isLoading.value = true
+        viewModelScope.launch{
             val response = async {
                 repository.sendPayment(amount,memo,toPhone,pin,qrIndicator)
             }
             println(response.await()?.responseCode + response.await()?.responseDescription)
             if (response.await()?.responseCode == "000"){
                 _transactionN.value = response.await()?.trxReference.toString()
+                _isLoading.value = false
                 _merchantPaymentState.value = MerchantPaymentState.Success
             }else if (response.await()?.responseCode == "312"){
+                _isLoading.value = false
                 _merchantPaymentState.value = MerchantPaymentState.Error(SendMoneyErrorType.PIN)
             }else if(response.await()?.responseCode == "365"){
+                _isLoading.value = false
                 _merchantPaymentState.value = MerchantPaymentState.Error(SendMoneyErrorType.MINAMOUNT)
             }else if(response.await()?.responseCode == "367"){
+                _isLoading.value = false
                 _merchantPaymentState.value = MerchantPaymentState.Error(SendMoneyErrorType.MAXTRANSACTION)
             }else if (response.await()?.responseCode  == "373"){
+                _isLoading.value = false
                 _merchantPaymentState.value =  MerchantPaymentState.Error(SendMoneyErrorType.INVALIDPHONE)
             }else if( response.await()?.responseCode == "316"){
+                _isLoading.value = false
                 _merchantPaymentState.value =  MerchantPaymentState.Error(SendMoneyErrorType.ACCOUNTNOTFOUND)
             }
         }
-        return _merchantPaymentState.value
     }
 
     sealed class MerchantPaymentState {

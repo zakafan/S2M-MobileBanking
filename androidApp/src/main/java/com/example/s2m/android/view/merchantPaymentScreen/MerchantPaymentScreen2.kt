@@ -1,5 +1,6 @@
 package com.example.s2m.android.view.merchantPaymentScreen
 
+import LoadingAnimation
 import android.annotation.SuppressLint
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
@@ -22,6 +23,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.DialogProperties
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.s2m.android.R
@@ -29,8 +31,10 @@ import com.example.s2m.android.getHash
 import com.example.s2m.android.util.*
 import com.example.s2m.model.User
 import com.example.s2m.util.SendMoneyErrorType
+import com.example.s2m.util.TransferErrorType
 import com.example.s2m.viewmodel.LoginViewModel
 import com.example.s2m.viewmodel.MerchantPaymentViewModel
+import com.example.s2m.viewmodel.TransferViewModel
 import com.example.s2m.viewmodel.WithdrawalViewModel
 import com.google.accompanist.pager.ExperimentalPagerApi
 
@@ -45,9 +49,27 @@ fun MerchantPaymentScreen2(
     val user: User by loginViewModel.user.collectAsState()
     var showDialog1 by remember { mutableStateOf(false) }
     var otpValue by remember{ mutableStateOf("") }
+    val loading by merchantPaymentViewModel.isLoading.collectAsState()
+    val merchantPaymentState by merchantPaymentViewModel.merchantPaymentState.collectAsState()
 
+    LaunchedEffect(merchantPaymentState){
+        when(merchantPaymentState){
+            is MerchantPaymentViewModel.MerchantPaymentState.Success -> navController.navigate(Routes.Transfer3.name)
+            is MerchantPaymentViewModel.MerchantPaymentState.Error -> {
+                val errorType = (merchantPaymentState as MerchantPaymentViewModel.MerchantPaymentState.Error).errorType
+                when (errorType) {
+                    SendMoneyErrorType.PIN -> showDialog1 = true
+                    SendMoneyErrorType.INVALIDPHONE -> {}
+                    SendMoneyErrorType.ACCOUNTNOTFOUND -> {}
+                    SendMoneyErrorType.MAXTRANSACTION -> {}
+                    SendMoneyErrorType.MINAMOUNT -> {}
+                    else -> {}
+                }
+            }
+            else -> {}
+        }
+    }
     Scaffold(
-
         backgroundColor = Color(backgroundColor),
         topBar = {
             TopAppBar(
@@ -225,15 +247,8 @@ fun MerchantPaymentScreen2(
                     shape = RoundedCornerShape(50),
                     onClick = {
                         merchantPaymentViewModel.onPinChanged(otpValue)
-                        if(merchantPaymentViewModel.sendPayment(merchantPaymentViewModel.amount.value,merchantPaymentViewModel.memo.value,merchantPaymentViewModel.toPhone.value,
-                                getHash(merchantPaymentViewModel.pin.value,),"NO"
-                            )== MerchantPaymentViewModel.MerchantPaymentState.Success){
-                            navController.navigate(Routes.Merchant3.name)
-                        }else if(merchantPaymentViewModel.sendPayment(merchantPaymentViewModel.amount.value,merchantPaymentViewModel.memo.value,merchantPaymentViewModel.toPhone.value,
-                                getHash(merchantPaymentViewModel.pin.value,),"NO"
-                            )== MerchantPaymentViewModel.MerchantPaymentState.Error(SendMoneyErrorType.PIN)){
-                            showDialog1 = true
-                        }
+                        merchantPaymentViewModel.sendPayment(merchantPaymentViewModel.amount.value,merchantPaymentViewModel.memo.value,merchantPaymentViewModel.toPhone.value,
+                            getHash(merchantPaymentViewModel.pin.value,),"NO")
 
 
                     },
@@ -288,6 +303,18 @@ fun MerchantPaymentScreen2(
                             )
                         }
                     }
+                }
+            )
+        }
+        if (loading) {
+            AlertDialog(
+                backgroundColor = Color.Transparent,
+                onDismissRequest = { },
+                properties = DialogProperties(dismissOnClickOutside = false),
+                buttons = {},
+                title = { },
+                text = {
+                    LoadingAnimation(isLoading = loading)
                 }
             )
         }

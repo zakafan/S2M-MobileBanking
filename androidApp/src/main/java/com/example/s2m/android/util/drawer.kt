@@ -11,6 +11,9 @@ import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -23,13 +26,28 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.s2m.android.R
 import com.example.s2m.model.User
+import com.example.s2m.util.SendMoneyErrorType
 import com.example.s2m.viewmodel.LoginViewModel
 import com.example.s2m.viewmodel.LogoutViewModel
+import com.example.s2m.viewmodel.MerchantPaymentViewModel
 
 @Composable
 fun DrawerContent(user: User, loginViewModel: LoginViewModel, navController: NavController, logoutViewModel: LogoutViewModel){
 
+    val loading by logoutViewModel.isLoading.collectAsState()
+    val loggedOut by logoutViewModel.loggedOut.collectAsState()
 
+    LaunchedEffect(loggedOut){
+        if(loggedOut){
+            loginViewModel.clearState()
+            navController.navigate("login"){
+                popUpTo(navController.graph.id){
+                    inclusive = true
+                }
+            }
+            logoutViewModel.logOut()
+        }
+    }
 
     Column(
         modifier = Modifier.fillMaxSize(),
@@ -51,7 +69,8 @@ fun DrawerContent(user: User, loginViewModel: LoginViewModel, navController: Nav
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(top = 8.dp).background(Color(backgroundColor))
+                .padding(top = 8.dp)
+                .background(Color(backgroundColor))
 
         ) {
             // Home Icon and Text
@@ -104,15 +123,7 @@ fun DrawerContent(user: User, loginViewModel: LoginViewModel, navController: Nav
         Button(
             colors = ButtonDefaults.buttonColors(backgroundColor = Color(topBarColor)),
             onClick = {
-
-                if(logoutViewModel.logout()){
-                    loginViewModel.clearState()
-                    navController.navigate("login"){
-                    popUpTo(navController.graph.id){
-                        inclusive = true
-                    }
-                }
-                }
+                      logoutViewModel.logout()
             },
             modifier = Modifier
                 .fillMaxWidth()

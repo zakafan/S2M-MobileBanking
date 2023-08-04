@@ -8,6 +8,7 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 
 class SendMoneyViewModel(private val repository: SendMoneyRepository):ViewModel() {
@@ -45,6 +46,7 @@ class SendMoneyViewModel(private val repository: SendMoneyRepository):ViewModel(
     private val _sendMoneyState: MutableStateFlow<SendMoneyState> = MutableStateFlow(
         SendMoneyState.Idle
     )
+    val sendMoneyState :StateFlow<SendMoneyState> = _sendMoneyState.asStateFlow()
 
     fun onAmountChanged(amount:String){
         _amount.value=amount
@@ -88,26 +90,31 @@ class SendMoneyViewModel(private val repository: SendMoneyRepository):ViewModel(
     }
 
     fun sendMoney(amount:String,memo:String,toPhone:String,pin:String,toName:String,
-                  identityNumber:String,notify:Boolean,secretCode:String):SendMoneyState{
+                  identityNumber:String,notify:Boolean,secretCode:String){
 
-        runBlocking {
+        _isLoading.value = true
+        viewModelScope.launch {
             val response=async {
                 repository.sendMoney(amount,memo,toPhone,pin,toName,identityNumber,notify, secretCode)
             }
             if(response.await()?.responseCode  == "000"){
                 _sendMoneyState.value = SendMoneyState.Success
+                _isLoading.value = false
                 _expiryDate.value= response.await()?.expiryDate.toString()
             }else if (response.await()?.responseCode  == "373"){
+                _isLoading.value = false
                 _sendMoneyState.value = SendMoneyState.Error(SendMoneyErrorType.INVALIDPHONE)
             }else if (response.await()?.responseCode  == "312"){
+                _isLoading.value = false
                 _sendMoneyState.value = SendMoneyState.Error(SendMoneyErrorType.PIN)
             }else if (response.await()?.responseCode  == "367"){
+                _isLoading.value = false
                 _sendMoneyState.value = SendMoneyState.Error(SendMoneyErrorType.MAXTRANSACTION)
             }else if (response.await()?.responseCode  == "365"){
+                _isLoading.value = false
                 _sendMoneyState.value = SendMoneyState.Error(SendMoneyErrorType.MINAMOUNT)
             }
         }
-        return _sendMoneyState.value
     }
 
     sealed class SendMoneyState {

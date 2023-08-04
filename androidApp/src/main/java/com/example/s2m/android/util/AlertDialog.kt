@@ -19,6 +19,7 @@ import androidx.compose.ui.unit.dp
 @Composable
 fun MyAlertDialog(text: String, show: Boolean, onDismiss: () -> Unit) {
     if (show) {
+
         AlertDialog(
             modifier = Modifier
                 .height(150.dp)

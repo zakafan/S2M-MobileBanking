@@ -7,6 +7,7 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 
 class WithdrawalViewModel(private val repository: WithdrawalRepository): ViewModel() {
@@ -26,12 +27,16 @@ class WithdrawalViewModel(private val repository: WithdrawalRepository): ViewMod
     private val _qrIndicator: MutableStateFlow<String> = MutableStateFlow("")
     val qrIndicator: StateFlow<String> = _qrIndicator.asStateFlow()
 
+    private val _isLoading: MutableStateFlow<Boolean> = MutableStateFlow(false)
+    val isLoading: StateFlow<Boolean> = _isLoading.asStateFlow()
+
     private val _transactionN: MutableStateFlow<String> = MutableStateFlow("")
     val transactionN: StateFlow<String> = _transactionN.asStateFlow()
 
     private val _withdrawalState: MutableStateFlow<WithdrawalState> = MutableStateFlow(
         WithdrawalState.Idle
     )
+    val withdrawalState : StateFlow<WithdrawalState> = _withdrawalState.asStateFlow()
 
     fun onAmountChanged(amount:String){
         _amount.value=amount
@@ -59,22 +64,21 @@ class WithdrawalViewModel(private val repository: WithdrawalRepository): ViewMod
 
     }
 
-    fun withdrawl(amount:String,memo:String,toPhone:String,pin:String,qrIndicator:String):WithdrawalState{
+    fun withdrawl(amount:String,memo:String,toPhone:String,pin:String,qrIndicator:String){
 
-        runBlocking {
+        _isLoading.value = true
+        viewModelScope.launch {
             val response = async {
                 repository.withdrawl(amount,memo,toPhone,pin,qrIndicator)
             }
             println(response.await()?.responseCode +response.await()?.responseDescription)
             if(response.await()?.responseCode == "000"){
                 _transactionN.value = response.await()?.trxReference.toString()
+                _isLoading.value = false
                 _withdrawalState.value =WithdrawalState.Success
             }else if(response.await()?.responseCode == ""){
-
             }
         }
-        return _withdrawalState.value
-
     }
 
     sealed class WithdrawalState {

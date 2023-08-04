@@ -5,6 +5,7 @@ pluginManagement {
         mavenCentral()
         maven("https://dl.bintray.com/icerockdev/moko")
         maven("https://dl.bintray.com/kotlin/kotlin-eap")
+        maven ("https://jitpack.io")
 
     }
 }
@@ -15,6 +16,7 @@ dependencyResolutionManagement {
         mavenCentral()
         maven("https://dl.bintray.com/icerockdev/moko")
         maven("https://dl.bintray.com/kotlin/kotlin-eap")
+        maven ("https://jitpack.io")
     }
 }
 
