@@ -40,6 +40,7 @@ android {
 }
 
 dependencies {
+    implementation("com.google.android.gms:play-services-fitness:21.1.0")
     val camerax_version = "1.2.3"
     implementation(project(":shared"))
     implementation("androidx.compose.ui:ui:1.4.3")
@@ -67,6 +68,12 @@ dependencies {
     implementation("androidx.camera:camera-view:${camerax_version}")
 
     implementation ("com.journeyapps:zxing-android-embedded:4.3.0")
+    implementation("com.himanshoe:charty:2.0.0-alpha01")
+    implementation ("com.patrykandpatrick.vico:core:1.8.0")
+    implementation ("com.patrykandpatrick.vico:compose:1.8.0")
+
+    implementation ("com.github.PhilJay:MPAndroidChart:v3.1.0")
+
 
 
 }

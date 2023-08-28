@@ -33,6 +33,9 @@ class WithdrawalViewModel(private val repository: WithdrawalRepository): ViewMod
     private val _transactionN: MutableStateFlow<String> = MutableStateFlow("")
     val transactionN: StateFlow<String> = _transactionN.asStateFlow()
 
+    private val _navigateToMain : MutableStateFlow<Boolean> = MutableStateFlow(false)
+    val navigateToMain: StateFlow<Boolean> = _navigateToMain.asStateFlow()
+
     private val _withdrawalState: MutableStateFlow<WithdrawalState> = MutableStateFlow(
         WithdrawalState.Idle
     )
@@ -47,11 +50,21 @@ class WithdrawalViewModel(private val repository: WithdrawalRepository): ViewMod
     fun ontoPhoneChanged(phone:String){
         _toPhone.value=phone
     }
+
     fun onPinChanged(pin:String){
         _pin.value=pin
     }
     fun onQrIndicatorChanged(qrIndicator:String){
         _qrIndicator.value=qrIndicator
+    }
+
+    fun navigateBackToMain() {
+        _navigateToMain.value = true
+    }
+
+    // Call this function to indicate that the navigation has been handled
+    fun onNavigationHandled() {
+        _navigateToMain.value = false
     }
 
     fun clearState() {

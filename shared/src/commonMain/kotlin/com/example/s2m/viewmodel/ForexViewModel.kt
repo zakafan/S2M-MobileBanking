@@ -23,7 +23,6 @@ class ForexViewModel(private val repository: ForexRepository):ViewModel() {
 
         try {
 
-
         runBlocking{
             val response=async {
                 repository.getForexRates()
@@ -34,11 +33,9 @@ class ForexViewModel(private val repository: ForexRepository):ViewModel() {
             }else{
                 println("error")
             }
-
         }
     }catch (e:IOException){
             _loginState.value = LoginViewModel.LoginState.Error(LoginErrorType.Connection)
     }
     }
-
 }

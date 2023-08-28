@@ -52,7 +52,7 @@ fun WithdrawalScreen2(
 
     LaunchedEffect(withdrawalState){
         when(withdrawalState){
-            is WithdrawalViewModel.WithdrawalState.Success -> navController.navigate(Routes.Transfer3.name)
+            is WithdrawalViewModel.WithdrawalState.Success -> navController.navigate(Routes.Withdrawal3.name)
             is WithdrawalViewModel.WithdrawalState.Error -> {
                 val errorType = (withdrawalState as WithdrawalViewModel.WithdrawalState.Error).errorType
                 when (errorType) {

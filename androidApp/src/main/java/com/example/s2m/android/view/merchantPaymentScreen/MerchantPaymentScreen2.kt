@@ -54,7 +54,7 @@ fun MerchantPaymentScreen2(
 
     LaunchedEffect(merchantPaymentState){
         when(merchantPaymentState){
-            is MerchantPaymentViewModel.MerchantPaymentState.Success -> navController.navigate(Routes.Transfer3.name)
+            is MerchantPaymentViewModel.MerchantPaymentState.Success -> navController.navigate(Routes.Merchant3.name)
             is MerchantPaymentViewModel.MerchantPaymentState.Error -> {
                 val errorType = (merchantPaymentState as MerchantPaymentViewModel.MerchantPaymentState.Error).errorType
                 when (errorType) {

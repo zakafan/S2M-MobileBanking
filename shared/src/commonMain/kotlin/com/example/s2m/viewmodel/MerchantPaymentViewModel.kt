@@ -33,6 +33,9 @@ class MerchantPaymentViewModel(private val repository: MerchantPaymentRepository
     private val _transactionN: MutableStateFlow<String> = MutableStateFlow("")
     val transactionN: StateFlow<String> = _transactionN.asStateFlow()
 
+    private val _navigateToMain : MutableStateFlow<Boolean> = MutableStateFlow(false)
+    val navigateToMain: StateFlow<Boolean> = _navigateToMain.asStateFlow()
+
     private val _merchantPaymentState: MutableStateFlow<MerchantPaymentState> = MutableStateFlow(
         MerchantPaymentState.Idle
     )
@@ -52,6 +55,14 @@ class MerchantPaymentViewModel(private val repository: MerchantPaymentRepository
     }
     fun onQrIndicatorChanged(qrIndicator:String){
         _qrIndicator.value=qrIndicator
+    }
+    fun navigateBackToMain() {
+        _navigateToMain.value = true
+    }
+
+    // Call this function to indicate that the navigation has been handled
+    fun onNavigationHandled() {
+        _navigateToMain.value = false
     }
 
     fun clearState() {

@@ -73,7 +73,6 @@ fun AddBeneficiaryScreen(
         backgroundColor = Color(backgroundColor),
 
         ){
-
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -155,6 +154,7 @@ fun AddBeneficiaryScreen(
                     color = Color.White,
                 )
             }
+
             if (showDialog) {
                 AlertDialog(
                     modifier = Modifier
@@ -178,8 +178,6 @@ fun AddBeneficiaryScreen(
                                 modifier = Modifier
                                     .padding(start = 50.dp, top = 60.dp)
                                     .width(200.dp)
-
-
                             ) {
 
                                 Text(

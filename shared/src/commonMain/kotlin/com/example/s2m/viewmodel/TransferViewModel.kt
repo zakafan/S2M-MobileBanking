@@ -53,6 +53,7 @@ class TransferViewModel(private val repository: TransferRepository):ViewModel() 
         _beneficiaryName.value=name
     }
 
+
     fun clearState() {
         _amount.value = ""
         _toPhone.value = ""

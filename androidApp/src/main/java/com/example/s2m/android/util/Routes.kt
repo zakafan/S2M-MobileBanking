@@ -20,10 +20,15 @@ enum class Routes {
     Locations,
     Profile,
     ChangePassword,
+    Withdrawal,
     Withdrawal1,
     Withdrawal2,
     Withdrawal3,
+    WithdrawalScanner,
+    Merchant,
     Merchant1,
     Merchant2,
-    Merchant3
+    Merchant3,
+    MerchantScanner
+
 }

@@ -48,6 +48,8 @@ fun AlertsScreen(
 
 
 
+
+
     DisposableEffect(Unit) {
         onDispose {
             if (!alertsViewModel.isDetailScreenVisible.value) {
@@ -94,6 +96,7 @@ fun AlertsScreen(
         }
     ) {
         Column(modifier = Modifier.fillMaxSize()) {
+
             if (alertsList?.alertList != null) {
                 if (alertsList!!.alertList?.isNotEmpty() == true) {
                     val readStateMap = remember { mutableStateMapOf<Int, Boolean>() }

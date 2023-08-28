@@ -21,9 +21,7 @@ import androidx.navigation.NavController
 import com.example.s2m.android.R
 import com.example.s2m.android.util.*
 import com.example.s2m.model.User
-import com.example.s2m.viewmodel.AlertsViewModel
-import com.example.s2m.viewmodel.LoginViewModel
-import com.example.s2m.viewmodel.LogoutViewModel
+import com.example.s2m.viewmodel.*
 import com.google.accompanist.pager.ExperimentalPagerApi
 import kotlinx.coroutines.launch
 
@@ -35,7 +33,9 @@ fun WelcomeScreen(
     loginViewModel: LoginViewModel = viewModel(),
     navController: NavController,
     alertsViewModel: AlertsViewModel = viewModel(),
-    logoutViewModel: LogoutViewModel = viewModel()
+    logoutViewModel: LogoutViewModel = viewModel(),
+    withdrawalViewModel: WithdrawalViewModel = viewModel(),
+    merchantPaymentViewModel: MerchantPaymentViewModel = viewModel()
 
 ) {
 
@@ -43,6 +43,8 @@ fun WelcomeScreen(
     val unreadNotificationCount by alertsViewModel.unreadNotificationCount.collectAsState()
     val load by logoutViewModel.isLoading.collectAsState()
     val user: User by loginViewModel.user.collectAsState()
+    val navigateToMain by withdrawalViewModel.navigateToMain.collectAsState()
+    val navigateTomain by merchantPaymentViewModel.navigateToMain.collectAsState()
     val scaffoldState = rememberScaffoldState()
     val coroutineScope = rememberCoroutineScope()
 
@@ -55,6 +57,14 @@ fun WelcomeScreen(
     LaunchedEffect(Unit) {
         // This will run when the composable is first displayed
         loginViewModel.isWelcomeScreenVisible = true
+        if(navigateToMain ){
+            withdrawalViewModel.clearState()
+            withdrawalViewModel.onNavigationHandled()
+        }
+        if(navigateTomain ){
+            merchantPaymentViewModel.clearState()
+            merchantPaymentViewModel.onNavigationHandled()
+        }
     }
 
     //user.responseLogin?.equipmentList?.get(0)
@@ -201,12 +211,12 @@ fun WelcomeScreen(
                     Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(16.dp)) {
                         CustomButton1(onClick = { navController.navigate("Transfer1")},text="Transfer",icon=R.drawable.transfer_money)
                         CustomButton1(onClick = { navController.navigate(Routes.Send1.name) },text="Money Send",icon=R.drawable.send_money)
-                        CustomButton1(onClick = {navController.navigate(Routes.Withdrawal1.name) },text="Cash Out",icon=R.drawable.withdraw)
+                        CustomButton1(onClick = {navController.navigate(Routes.Withdrawal.name) },text="Cash Out",icon=R.drawable.withdraw)
                     }
                     Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(16.dp)) {
                         CustomButton1(onClick = { navController.navigate(Routes.History.name) },text=" History",icon=R.drawable.time_management)
                         CustomButton1(onClick = {navController.navigate(Routes.Withdrawal3.name) },text="Wallet details",icon=R.drawable.card)
-                        CustomButton1(onClick = { navController.navigate(Routes.Merchant1.name)},text="Pay Merchant",icon=R.drawable.payment)
+                        CustomButton1(onClick = { navController.navigate(Routes.Merchant.name)},text="Pay Merchant",icon=R.drawable.payment)
                     }
                 }
             }

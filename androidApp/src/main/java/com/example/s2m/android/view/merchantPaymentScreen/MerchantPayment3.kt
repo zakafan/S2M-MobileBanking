@@ -148,6 +148,7 @@ fun MerchantPaymentScreen3(
                     shape = RoundedCornerShape(50),
                     onClick = {
                         merchantPaymentViewModel.clearState()
+                        println(merchantPaymentViewModel.toPhone.value)
                         navController.navigate(Routes.Welcome.name)
                     },
                     modifier = Modifier

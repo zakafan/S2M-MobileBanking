@@ -15,9 +15,7 @@ import com.example.s2m.android.view.alertScreens.AlertsScreen2
 import com.example.s2m.android.view.beneficiaryScreen.AddBeneficiaryScreen
 import com.example.s2m.android.view.beneficiaryScreen.BeneficiaryScreen
 import com.example.s2m.android.view.beneficiaryScreen.RecapAddBeneficiaryScreen
-import com.example.s2m.android.view.merchantPaymentScreen.MerchantPaymentScreen1
-import com.example.s2m.android.view.merchantPaymentScreen.MerchantPaymentScreen2
-import com.example.s2m.android.view.merchantPaymentScreen.MerchantPaymentScreen3
+import com.example.s2m.android.view.merchantPaymentScreen.*
 import com.example.s2m.android.view.sendMoneyScreen.SendMoneyScreen1
 import com.example.s2m.android.view.sendMoneyScreen.SendMoneyScreen2
 import com.example.s2m.android.view.sendMoneyScreen.SendMoneyScreen3
@@ -26,6 +24,7 @@ import com.example.s2m.android.view.settingsScreens.ChangePasswordPin
 import com.example.s2m.android.view.transferScreen.TransferScreen1
 import com.example.s2m.android.view.transferScreen.TransferScreen2
 import com.example.s2m.android.view.transferScreen.TransferScreen3
+import com.example.s2m.android.view.withdrawalScreen.WithdrawalScreen
 import com.example.s2m.android.view.withdrawalScreen.WithdrawalScreen1
 import com.example.s2m.android.view.withdrawalScreen.WithdrawalScreen2
 import com.example.s2m.android.view.withdrawalScreen.WithdrawalScreen3
@@ -44,6 +43,7 @@ private val beneficiaryViewModel = BeneficiaryViewModel(repository = AddBenefici
 private val profileViewModel    = ProfileViewModel(repository = ProfileRepository(loginViewModel))
 private val withdrawalViewModel = WithdrawalViewModel(repository = WithdrawalRepository(loginViewModel))
 private val merchantPaymentViewModel = MerchantPaymentViewModel(repository = MerchantPaymentRepository(loginViewModel))
+private val walletStatsViewModel = WalletStatsViewModel(repository = WalletStatsRepository(loginViewModel))
 
 
 @RequiresApi(Build.VERSION_CODES.O)
@@ -62,7 +62,8 @@ fun SetupNavGraph(
             LoginScreen(loginViewModel = loginViewModel, navController = navController, forexViewModel = forexViewModel , callback =callback )
         }
         composable(route = Routes.Welcome.name) {
-            WelcomeScreen(loginViewModel = loginViewModel, navController = navController, alertsViewModel, logoutViewModel = logoutViewModel)
+            WelcomeScreen(loginViewModel = loginViewModel, navController = navController, alertsViewModel, logoutViewModel = logoutViewModel, withdrawalViewModel = withdrawalViewModel,
+                merchantPaymentViewModel = merchantPaymentViewModel)
         }
         composable(route = Routes.Beneficiary.name) {
             BeneficiaryScreen(loginViewModel = loginViewModel, navController = navController,logoutViewModel= logoutViewModel, beneficiaryViewModel = beneficiaryViewModel)
@@ -110,7 +111,7 @@ fun SetupNavGraph(
             alert?.let { it1 -> AlertsScreen2(it1,alertsViewModel=alertsViewModel, logoutViewModel = logoutViewModel, loginViewModel = loginViewModel, navController = navController) }
         }
         composable(route= Routes.History.name){
-            HistoryTransactionsScreen(navController = navController, loginViewModel = loginViewModel, logoutViewModel = logoutViewModel)
+            HistoryTransactionsScreen(navController = navController, loginViewModel = loginViewModel, logoutViewModel = logoutViewModel, walletStatsViewModel = walletStatsViewModel)
         }
         composable(route= Routes.Locations.name){
             LocationsScreen(navController = navController)
@@ -138,6 +139,18 @@ fun SetupNavGraph(
         }
         composable(route= Routes.Merchant3.name){
             MerchantPaymentScreen3(navController = navController, merchantPaymentViewModel = merchantPaymentViewModel, loginViewModel = loginViewModel  )
+        }
+        composable(route = Routes.Merchant.name){
+            MerchantPaymentScreen(navController = navController)
+        }
+        composable(route = Routes.MerchantScanner.name){
+            Scanner(navController = navController, merchantPaymentViewModel = merchantPaymentViewModel)
+        }
+        composable(route = Routes.Withdrawal.name){
+            WithdrawalScreen(navController = navController)
+        }
+        composable(route = Routes.WithdrawalScanner.name){
+            com.example.s2m.android.view.withdrawalScreen.Scanner(navController = navController,withdrawalViewModel=withdrawalViewModel)
         }
 
 

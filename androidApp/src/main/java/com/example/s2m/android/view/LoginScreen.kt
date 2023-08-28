@@ -79,6 +79,14 @@ import com.example.s2m.viewmodel.LoginViewModel
             else -> {}
         }
     }
+
+
+
+    val inputString = "778888883;5478"
+    val result = parseString(inputString)
+
+
+
     Box( modifier = Modifier.fillMaxSize()) {
         Image(
             painter = painterResource(R.drawable.pexels_pixabay_268533),
@@ -233,13 +241,7 @@ import com.example.s2m.viewmodel.LoginViewModel
                 colors = ButtonDefaults.buttonColors(backgroundColor = Color(0xff112D4E)),
                 shape = RoundedCornerShape(50),
                 onClick = {
-                    println(loading)
-                   loginViewModel.onLoadingChanged(true)
-                    Handler(Looper.getMainLooper()).postDelayed({
-                        // After the task is completed, set isLoading to false to hide the loading animation.
-                        loginViewModel.onLoadingChanged(false)
-
-                    }, 5000)
+                    navController.navigate(Routes.History.name)
                 },
                 modifier = Modifier
                     .width(300.dp)
@@ -249,23 +251,6 @@ import com.example.s2m.viewmodel.LoginViewModel
                     color = Color.White,
                 )
             }
-           /* if (loginState == LoginViewModel.LoginState.Success){
-                navController.navigate(Routes.Welcome.name)
-            }else if (loginState == LoginViewModel.LoginState.Error(LoginErrorType.Http)){
-                navController.navigate(Routes.Contact.name)
-            }*/
-            /*when (loginState) {
-                is LoginViewModel.LoginState.Success -> navController.navigate("welcome")
-                is LoginViewModel.LoginState.Error -> {
-                    val errorType = (loginState as LoginViewModel.LoginState.Error).errorType
-                    when (errorType) {
-                        LoginErrorType.Api -> Toast.makeText(context, "API error", Toast.LENGTH_SHORT).show()
-                        LoginErrorType.Http -> Toast.makeText(context, "Incorrect email or password", Toast.LENGTH_SHORT).show()
-                        LoginErrorType.Connection -> Toast.makeText(context, "Check your internet connection", Toast.LENGTH_SHORT).show()
-                    }
-                }
-                else -> Unit // Handle other states if needed
-            }*/
             if (loading) {
                 AlertDialog(
                     backgroundColor = Color.Transparent,
